@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Аналитики{% endblock %}
+{% block page_title %}Аналитики{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="form-group"><label>Релиз</label>
+<select id="releaseSelect" class="form-control" data-stats-base="{{ url_for('stats.index') }}">
+<option value="">Выберите релиз</option>
+{% for r in releases %}<option value="{{ r.id }}" {% if selected_release and selected_release.id == r.id %}selected{% endif %}>{{ r.title }} ({{ r.upc or 'без UPC' }})</option>{% endfor %}
+</select>
+</div>
+{% if selected_release %}
+<div class="card" style="margin-top:1rem;"><div class="card-header" style="display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem;">
+  <h3 style="margin:0;">{{ selected_release.title }}</h3>
+  {% if current_user.is_admin %}<a href="{{ url_for('stats.add') }}?release_id={{ selected_release.id }}" class="btn btn-primary btn-sm">Добавить аналитику</a>{% endif %}
+  {% if has_endpoint is defined and has_endpoint('stats.listens_chart') %}<a href="{{ url_for('stats.listens_chart', release_id=selected_release.id) }}" class="btn btn-ghost btn-sm">График прослушиваний</a>{% endif %}
+</div>
+<div class="card-content">
+{% if analytics_data %}
+<div style="position:relative; height:280px; max-width:100%; margin-bottom:1.25rem;">
+  <canvas id="timelineChart" aria-label="График стримов по периодам"></canvas>
+</div>
+<p class="form-hint" style="margin-bottom:0.75rem;">Периоды — нажмите для деталей и графика по площадкам:</p>
+{% for item in analytics_data %}
+<div style="padding:0.75rem; border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+  <a href="{{ url_for('stats.view', id=item.id) }}" class="btn btn-ghost btn-sm" style="flex:1; text-align:left; justify-content:flex-start;">
+    <span class="material-icons" style="font-size:1.1rem; vertical-align:middle;">insert_chart</span>
+    {{ item.period_display }} — Стримы: {{ item.streams }}, Скачивания: {{ item.downloads }}, Доход: {{ "%.2f"|format(item.revenue) }} ₽
+  </a>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state small"><p>Данных аналитики нет</p>{% if current_user.is_admin %}<a href="{{ url_for('stats.add') }}?release_id={{ selected_release.id }}" class="btn btn-primary btn-sm" style="margin-top:0.5rem;">Добавить первую аналитику</a>{% endif %}</div>
+{% endif %}
+</div></div>
+{% endif %}
+{% if not selected_release and releases %}<p class="form-hint">Выберите релиз для просмотра аналитики и графиков</p>{% endif %}
+{% if not releases %}<div class="empty-state"><p>Нет одобренных релизов</p></div>{% endif %}
+</div>
+{% endblock %}
+
+{# Блок extra_js должен быть один и без {% if %} снаружи — иначе Jinja падает при рендере #}
+{% block extra_js %}
+<script>
+(function() {
+  var sel = document.getElementById('releaseSelect');
+  if (sel && sel.dataset.statsBase) {
+    sel.addEventListener('change', function() {
+      var base = sel.dataset.statsBase;
+      if (this.value) window.location.href = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'release_id=' + encodeURIComponent(this.value);
+      else window.location.href = base;
+    });
+  }
+})();
+</script>
+{% if selected_release and analytics_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  var releaseId = {{ selected_release.id }};
+  var year = {{ analytics_data[0].year }};
+  var chartUrl = {{ (url_for('stats.chart_data') ~ '?release_id=' ~ selected_release.id ~ '&type=monthly&metric=streams&year=' ~ analytics_data[0].year)|tojson }};
+  fetch(chartUrl, { credentials: 'same-origin' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.labels || !data.labels.length || !data.values) return;
+      var ctx = document.getElementById('timelineChart');
+      if (!ctx || typeof Chart === 'undefined') return;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Стримы (' + year + ')',
+            data: data.values,
+            fill: true,
+            backgroundColor: 'rgba(249, 115, 22, 0.15)',
+            borderColor: 'rgba(249, 115, 22, 1)',
+            tension: 0.25
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true, labels: { color: '#94a3b8' } } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: '#94a3b8' } },
+            x: { ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    })
+    .catch(function() {});
+})();
+</script>
+{% endif %}
+{% endblock %}

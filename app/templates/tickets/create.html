@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Новый тикет{% endblock %}
+{% block page_title %}Создание обращения{% endblock %}
+{% block content %}
+<div class="ticket-form-wrapper">
+    <div class="card ticket-create-card">
+        <div class="card-content">
+            <div class="ticket-form-intro">
+                <span class="material-icons">support_agent</span>
+                <p>Опишите ваш вопрос или проблему. Мы ответим в ближайшее время.</p>
+            </div>
+
+            <form method="POST" class="ticket-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="subject">
+                        <span class="material-icons">subject</span>
+                        Тема обращения *
+                    </label>
+                    <input type="text" id="subject" name="subject" required class="form-control" placeholder="Кратко опишите тему">
+                </div>
+                <div class="form-group">
+                    <label for="message">
+                        <span class="material-icons">message</span>
+                        Сообщение *
+                    </label>
+                    <textarea id="message" name="message" required class="form-control" rows="6" placeholder="Подробно опишите ваш вопрос..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <a href="{{ url_for('tickets.index') }}" class="btn btn-ghost">Отмена</a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">send</span>
+                        Отправить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

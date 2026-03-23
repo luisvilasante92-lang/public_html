@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}База знаний{% endblock %}
+{% block page_title %}База знаний{% endblock %}
+{% block content %}
+<div class="knowledge-portal uni-skin">
+    <header class="kb-home-head">
+        <p class="kb-eyebrow">Справочный центр</p>
+        <div class="kb-home-hero">
+            <div class="kb-home-hero__glow" aria-hidden="true"></div>
+            <div class="kb-home-hero__inner">
+                <div class="kb-home-hero__icon-wrap" aria-hidden="true">
+                    <span class="material-icons">menu_book</span>
+                </div>
+                <h1 class="kb-home-hero__title">База знаний</h1>
+                <p class="kb-home-hero__lead">Инструкции и ответы по личному кабинету, релизам, дистрибуции и сервису LVR Music Publishing.</p>
+            </div>
+        </div>
+    </header>
+
+    <section class="kb-home-sections" aria-labelledby="kb-sections-label">
+        <div class="kb-sections-head">
+            <h2 id="kb-sections-label" class="kb-sections-head__title">Разделы</h2>
+            <p class="kb-sections-head__sub">Выберите тему — откроются статьи и материалы.</p>
+        </div>
+        <div class="kb-section-grid">
+            {% for s in sections %}
+            <a href="{{ s.href }}" class="kb-section-tile{% if s.is_main %} kb-section-tile--featured{% endif %}">
+                <span class="kb-section-tile__icon material-icons" aria-hidden="true">{{ s.icon }}</span>
+                <div class="kb-section-tile__body">
+                    <h3 class="kb-section-tile__title">{{ s.title }}</h3>
+                    <p class="kb-section-tile__desc">{{ s.desc }}</p>
+                </div>
+                <span class="material-icons kb-section-tile__chev" aria-hidden="true">chevron_right</span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

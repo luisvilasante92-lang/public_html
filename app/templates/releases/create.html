@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Новый релиз{% endblock %}
+{% block page_title %}Новый релиз{% endblock %}
+
+{% block content %}
+<div class="release-create-redesign">
+    <!-- Верхняя панель -->
+    <header class="rlc-head">
+        <a href="{{ url_for('releases.index') }}" class="rlc-head__back" aria-label="Назад к релизам">
+            <span class="material-icons">arrow_back</span>
+        </a>
+        <div class="rlc-head__text">
+            <span class="rlc-head__badge">Новый релиз</span>
+            <h1 class="rlc-head__title">Создание релиза</h1>
+            <p class="rlc-head__subtitle">Основные данные → треки → модерация. Заполните поля ниже и нажмите «Создать».</p>
+        </div>
+    </header>
+
+    <form method="POST" enctype="multipart/form-data" class="rlc-form" id="releaseCreateForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="rlc-bento">
+            <!-- Колонка обложки -->
+            <aside class="rlc-aside">
+                <div class="rlc-cover-card">
+                    <input type="file" name="cover" id="coverInput" accept=".jpg,.jpeg,.png" hidden>
+                    <label for="coverInput" class="rlc-cover" id="coverPreview" tabindex="0" role="button" aria-label="Загрузить обложку">
+                        <div class="rlc-cover-placeholder">
+                            <span class="material-icons rlc-cover-icon">add_photo_alternate</span>
+                            <span class="rlc-cover-label">Обложка</span>
+                            <span class="rlc-cover-meta">JPG, PNG · до 10 MB</span>
+                            <span class="rlc-cover-cta">Выбрать файл</span>
+                        </div>
+                    </label>
+                </div>
+                <p class="rlc-aside-hint">Квадратное изображение даст лучший результат на площадках.</p>
+            </aside>
+
+            <!-- Основной блок полей -->
+            <div class="rlc-main">
+                <section class="rlc-panel">
+                    <h2 class="rlc-panel__title">
+                        <span class="material-icons" aria-hidden="true">info</span>
+                        Основная информация
+                    </h2>
+                    <div class="rlc-grid">
+                        <div class="rlc-field rlc-field--full">
+                            <label for="title">Название <span class="req">*</span></label>
+                            <input type="text" id="title" name="title" required placeholder="Название релиза" autocomplete="off">
+                        </div>
+                        <div class="rlc-field rlc-field--full">
+                            <label for="artists">Артисты <span class="req">*</span></label>
+                            <input type="text" id="artists" name="artists" required value="{{ current_user.display_name }}" placeholder="Артист, feat. Гость" autocomplete="off">
+                        </div>
+                        <div class="rlc-field">
+                            <label for="type">Тип</label>
+                            <select id="type" name="type">
+                                <option value="Single">Сингл</option>
+                                <option value="EP">EP</option>
+                                <option value="Album">Альбом</option>
+                            </select>
+                        </div>
+                        <div class="rlc-field">
+                            <label for="genre">Жанр <span class="req">*</span></label>
+                            <select id="genre" name="genre" required>
+                                <option value="">Выберите жанр</option>
+                                {% for g in genres %}
+                                <option value="{{ g }}">{{ g }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="rlc-panel">
+                    <h2 class="rlc-panel__title">
+                        <span class="material-icons" aria-hidden="true">tune</span>
+                        Дополнительно
+                    </h2>
+                    <div class="rlc-grid">
+                        <div class="rlc-field">
+                            <label for="version">Версия</label>
+                            <input type="text" id="version" name="version" placeholder="Remix, Deluxe…">
+                        </div>
+                        <div class="rlc-field">
+                            <label for="release_date">Дата релиза <span class="req">*</span></label>
+                            <input type="date" id="release_date" name="release_date" required>
+                        </div>
+                        <div class="rlc-field rlc-field--full">
+                            <label for="upc">UPC / EAN</label>
+                            <input type="text" id="upc" name="upc" placeholder="Необязательно" maxlength="20" autocomplete="off">
+                        </div>
+                    </div>
+                    <label class="rlc-check">
+                        <input type="checkbox" name="yandex_presave">
+                        <span class="rlc-check__box" aria-hidden="true"></span>
+                        <span class="material-icons rlc-check__icon" aria-hidden="true">campaign</span>
+                        <span>Яндекс Пресейв</span>
+                    </label>
+                </section>
+
+                <details class="rlc-details">
+                    <summary>
+                        <span class="material-icons" aria-hidden="true">help_outline</span>
+                        Подсказки и важная информация
+                    </summary>
+                    <div class="rlc-details__body">
+                        <div class="rlc-note rlc-note--info">
+                            <span class="material-icons">smart_display</span>
+                            <p>Проблемы с загрузкой аудио? Попробуйте другой браузер — рекомендуем Google Chrome.</p>
+                        </div>
+                        <div class="rlc-note rlc-note--warn">
+                            <span class="material-icons">copyright</span>
+                            <p>Для инструментальных релизов может потребоваться подтверждение авторских прав.</p>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <footer class="rlc-footer">
+            <a href="{{ url_for('releases.index') }}" class="rlc-btn rlc-btn--ghost">
+                <span class="material-icons">close</span>
+                Отмена
+            </a>
+            <button type="submit" class="rlc-btn rlc-btn--primary">
+                <span class="material-icons">add_circle</span>
+                Создать релиз
+            </button>
+        </footer>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    const input = document.getElementById('coverInput');
+    const preview = document.getElementById('coverPreview');
+    if (!input || !preview) return;
+
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            preview.innerHTML = '<img src="' + ev.target.result + '" alt="Обложка">';
+            preview.classList.add('has-image');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    preview.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            input.click();
+        }
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Главная{% endblock %}
+{% block page_title %}Главная{% endblock %}
+
+{% block content %}
+<div class="dashboard db-redesign">
+    <!-- Уведомление: законодательство и модерация площадок -->
+    <div class="db-alert dashboard-legal-notice" role="alert">
+        <span class="dashboard-legal-notice__icon material-icons" aria-hidden="true">report</span>
+        <div class="dashboard-legal-notice__body">
+            <p class="dashboard-legal-notice__eyebrow">Обязательно к сведению</p>
+            <h3 class="dashboard-legal-notice__title">Важно</h3>
+            <div class="dashboard-legal-notice__copy">
+                <p>С 1 марта 2026 в силу вступил закон о запрете пропаганды наркотических средств, поэтому наши партнёры проводят проверку всего отгруженного контента.</p>
+                <p>Часть релизов была удалена по инициативе площадки, так как по результатам автоматического аудита они признаны несущими риски финансового и уголовного преследования, поэтому часть ваших релизов может быть отозвана с витрин.</p>
+                <p>Если вы наблюдаете релизы на площадках, то данное ограничение не коснулось их.</p>
+                <p>Согласно правилам работы с площадками, мы обязаны соблюдать их требования.</p>
+                <p class="dashboard-legal-notice__final">Удаление произошло на стороне партнёра, поэтому восстановить или перезагрузить данные релизы невозможно — это технически заблокировано модерацией. Мы не можем повлиять на этот процесс, даже если вы уверены в отсутствии нарушений.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Герой: приветствие + CTA -->
+    <section class="db-hero">
+        <div class="db-hero__bg" aria-hidden="true"></div>
+        <div class="db-hero__inner">
+            <div class="db-hero__text">
+                <p class="db-hero__eyebrow">Личный кабинет</p>
+                <h2 class="db-hero__title">Привет, {{ current_user.display_name }}</h2>
+                <p class="db-hero__subtitle">Релизы, финансы и поддержка — в одном месте</p>
+            </div>
+            <a href="{{ url_for('releases.create') }}" class="db-hero__cta">
+                <span class="material-icons">add</span>
+                Новый релиз
+            </a>
+        </div>
+    </section>
+
+    <!-- Метрики (артисты) -->
+    {% if not current_user.is_admin and stats %}
+    <section class="db-metrics" aria-label="Сводка по релизам">
+        <div class="db-metric">
+            <span class="db-metric__icon" aria-hidden="true"><span class="material-icons">album</span></span>
+            <div class="db-metric__body">
+                <span class="db-metric__value">{{ stats.total_releases }}</span>
+                <span class="db-metric__label">Всего релизов</span>
+            </div>
+        </div>
+        <div class="db-metric db-metric--ok">
+            <span class="db-metric__icon" aria-hidden="true"><span class="material-icons">check_circle</span></span>
+            <div class="db-metric__body">
+                <span class="db-metric__value">{{ stats.approved_releases }}</span>
+                <span class="db-metric__label">Одобрено</span>
+            </div>
+        </div>
+        <div class="db-metric db-metric--pending">
+            <span class="db-metric__icon" aria-hidden="true"><span class="material-icons">pending</span></span>
+            <div class="db-metric__body">
+                <span class="db-metric__value">{{ stats.pending_releases }}</span>
+                <span class="db-metric__label">На модерации</span>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Bento: новости + финансы -->
+    <div class="db-bento">
+        <article class="db-panel db-panel--news">
+            <header class="db-panel__head">
+                <h3 class="db-panel__title"><span class="material-icons">newspaper</span> Новости</h3>
+                <a href="{{ url_for('stories.index') }}" class="db-panel__link">Все новости →</a>
+            </header>
+            <div class="db-panel__body">
+                {% if latest_news %}
+                <div class="db-news{% if latest_news.cover_image %} db-news--featured{% endif %}">
+                    {% if latest_news.cover_image %}
+                    <a href="{{ url_for('stories.view', id=latest_news.id) }}" class="db-news__media">
+                        <img src="{{ latest_news.cover_url }}" alt="" class="db-news__img">
+                    </a>
+                    {% endif %}
+                    <div class="db-news__content">
+                        <time class="db-news__date">{{ latest_news.date_formatted }}</time>
+                        <h4 class="db-news__title"><a href="{{ url_for('stories.view', id=latest_news.id) }}">{{ latest_news.title }}</a></h4>
+                        <p class="db-news__excerpt">{{ latest_news.short_content }}</p>
+                        <a href="{{ url_for('stories.view', id=latest_news.id) }}" class="db-news__more">Читать далее</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="db-empty">
+                    <span class="material-icons">article</span>
+                    <p>Новостей пока нет</p>
+                </div>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="db-panel db-panel--finance">
+            <header class="db-panel__head">
+                <h3 class="db-panel__title"><span class="material-icons">payments</span> Финансы {{ current_year }}</h3>
+                <a href="{{ url_for('money.index') }}" class="db-panel__link">К финансам →</a>
+            </header>
+            <div class="db-panel__body">
+                <div class="db-quarters">
+                    {% for quarter in quarters_data %}
+                    <div class="db-quarter {% if quarter.quarter == current_quarter %}is-current{% endif %}">
+                        <span class="db-quarter__rom">{{ quarter.quarter_roman }}</span>
+                        <span class="db-quarter__hint">квартал</span>
+                        {% if quarter.has_data %}
+                        <span class="db-quarter__sum">{{ "%.2f"|format(quarter.amount) }} ₽</span>
+                        {% else %}
+                        <span class="db-quarter__empty">—</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <!-- Быстрые действия -->
+    <section class="db-shortcuts" aria-label="Быстрые действия">
+        <h3 class="db-shortcuts__title">Быстрый доступ</h3>
+        <nav class="db-shortcuts__grid">
+            <a href="{{ url_for('releases.create') }}" class="db-shortcut">
+                <span class="db-shortcut__circle"><span class="material-icons">add_circle</span></span>
+                <span class="db-shortcut__text">Создать релиз</span>
+            </a>
+            <a href="{{ url_for('smart_link.create') }}" class="db-shortcut">
+                <span class="db-shortcut__circle"><span class="material-icons">link</span></span>
+                <span class="db-shortcut__text">Смарт-ссылка</span>
+            </a>
+            <a href="{{ url_for('tickets.create') }}" class="db-shortcut">
+                <span class="db-shortcut__circle"><span class="material-icons">support_agent</span></span>
+                <span class="db-shortcut__text">Поддержка</span>
+            </a>
+            <a href="{{ url_for('profile.index') }}" class="db-shortcut">
+                <span class="db-shortcut__circle"><span class="material-icons">person</span></span>
+                <span class="db-shortcut__text">Профиль</span>
+            </a>
+        </nav>
+    </section>
+</div>
+{% endblock %}

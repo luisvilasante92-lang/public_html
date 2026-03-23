@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}База знаний — админ{% endblock %}
+{% block page_title %}База знаний{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<p style="margin-bottom:1rem;color:var(--text-secondary);font-size:0.9375rem;max-width:52rem;line-height:1.55;">
+    <strong>Как устроено:</strong> сначала создаёте <em>раздел</em> (название и адрес в URL). Внутри раздела — <em>статьи</em>.
+    При необходимости добавьте <em>подразделы</em> (вкладки, как «Отчёты», «YouTube»): тогда страница раздела покажет вкладки, поиск и список вопросов по выбранной вкладке.
+    Публичные адреса: <code>/knowledge/раздел</code> и <code>/knowledge/раздел/статья</code>.
+    Если в разделе нет статей с текстом, можно включить <em>запасной встроенный шаблон</em> (ЛК / площадки / дистрибуция).
+    Галочка «Главная статья раздела» — открывается сразу по адресу <code>/knowledge/раздел</code> (если их несколько — внизу ссылки на остальные в той же вкладке).
+</p>
+<div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
+  <a href="{{ url_for('admin.knowledge_section_new') }}" class="btn btn-primary" style="margin:0;"><span class="material-icons">create_new_folder</span> Новый раздел</a>
+  <a href="{{ url_for('admin.knowledge_article_new') }}" class="btn btn-primary" style="margin:0;"><span class="material-icons">note_add</span> Новая статья</a>
+  <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost" target="_blank" rel="noopener">Открыть базу знаний</a>
+</div>
+
+{% if not sections %}
+<div class="uni-list"><div class="uni-list__row" style="justify-content:center;border:none;"><p style="margin:0;">Разделов пока нет — нажмите «Новый раздел».</p></div></div>
+{% else %}
+{% for sec in sections %}
+<div class="uni-list" style="margin-bottom:1.25rem;">
+  <div class="uni-list__row" style="flex-wrap:wrap;gap:0.75rem;border-bottom:none;background:var(--bg-tertiary);align-items:flex-start;">
+    <div class="uni-list__main" style="flex:1;min-width:220px;">
+      <strong style="font-size:1.02rem;">{{ sec.title }}</strong>
+      {% if not sec.is_published %}<span class="status-rejected" style="margin-left:0.35rem;">Скрыт</span>{% endif %}
+      <div style="font-size:0.875rem;color:var(--text-tertiary);margin-top:0.25rem;">
+        URL: <code>/knowledge/{{ sec.slug }}</code>
+        {% if sec.static_fallback %} · запас: {{ sec.static_fallback }}{% endif %}
+        {% if sec.highlight_index %} · <span style="color:var(--primary);">крупная карточка на главной БЗ</span>{% endif %}
+      </div>
+    </div>
+    <div class="uni-list__actions" style="flex-wrap:wrap;">
+      <a href="{{ url_for('knowledge.section', slug=sec.slug) }}" class="btn btn-ghost btn-sm" target="_blank" rel="noopener">Просмотр</a>
+      <a href="{{ url_for('admin.knowledge_section_edit', sid=sec.id) }}" class="btn btn-ghost btn-sm">Раздел</a>
+      <a href="{{ url_for('admin.knowledge_topic_new', sid=sec.id) }}" class="btn btn-ghost btn-sm">+ Подраздел</a>
+      <a href="{{ url_for('admin.knowledge_article_new', section_id=sec.id) }}" class="btn btn-primary btn-sm">+ Статья</a>
+      <form method="POST" action="{{ url_for('admin.knowledge_section_delete', sid=sec.id) }}" style="display:inline;" onsubmit="return confirm('Удалить раздел «{{ sec.title }}» и все статьи внутри?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить раздел</button>
+      </form>
+    </div>
+  </div>
+  {% for top in sec.topics_ordered %}
+  <div class="uni-list__row" style="background:var(--bg-secondary);flex-wrap:wrap;gap:0.5rem;">
+    <div class="uni-list__main" style="min-width:200px;">
+      <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-tertiary);">Подраздел</span>
+      <div><strong>{{ top.title }}</strong>
+        {% if not top.is_published %}<span class="status-rejected" style="margin-left:0.35rem;font-size:0.75rem;">скрыт</span>{% endif %}
+      </div>
+      <div style="font-size:0.8125rem;color:var(--text-tertiary);margin-top:0.2rem;">
+        <code>/knowledge/{{ sec.slug }}?topic={{ top.slug }}</code>
+      </div>
+    </div>
+    <div class="uni-list__actions" style="flex-wrap:wrap;">
+      <a href="{{ url_for('admin.knowledge_article_new', section_id=sec.id, topic_id=top.id) }}" class="btn btn-primary btn-sm">+ Статья</a>
+      <a href="{{ url_for('admin.knowledge_topic_edit', tid=top.id) }}" class="btn btn-ghost btn-sm">Изменить</a>
+      <form method="POST" action="{{ url_for('admin.knowledge_topic_delete', tid=top.id) }}" style="display:inline;" onsubmit="return confirm('Удалить подраздел «{{ top.title }}»? Статьи останутся без вкладки.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% if sec.articles_ordered %}
+  {% for a in sec.articles_ordered %}
+  <div class="uni-list__row">
+    <div class="uni-list__main">
+      <strong>{{ a.title }}</strong>
+      <span style="color:var(--text-tertiary);font-size:0.8125rem;"> /knowledge/{{ sec.slug }}/{{ a.slug }}</span>
+      {% if a.is_landing %}<span class="status-approved" style="margin-left:0.35rem;font-size:0.75rem;">главная в разделе</span>{% endif %}
+      {% if not a.is_published %}<span class="status-rejected" style="margin-left:0.35rem;">черновик</span>{% endif %}
+      {% if a.topic %}<span style="color:var(--text-tertiary);font-size:0.75rem;margin-left:0.35rem;">· {{ a.topic.title }}</span>{% endif %}
+      {% if not a.body_html or not a.body_html.strip() %}<span style="color:var(--warning);font-size:0.75rem;margin-left:0.35rem;">нет текста</span>{% endif %}
+    </div>
+    <div class="uni-list__actions">
+      <a href="{{ url_for('admin.knowledge_article_edit', aid=a.id) }}" class="btn btn-ghost btn-sm">Редактировать</a>
+      <form method="POST" action="{{ url_for('admin.knowledge_article_delete', aid=a.id) }}" style="display:inline;" onsubmit="return confirm('Удалить статью?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="uni-list__row" style="justify-content:center;color:var(--text-secondary);font-size:0.9375rem;">В разделе пока нет статей — нажмите «+ Статья».</div>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+</div>
+{% endblock %}

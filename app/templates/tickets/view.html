@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Тикет #{{ ticket.id }}{% endblock %}
+{% block page_title %}{{ ticket.subject }}{% endblock %}
+{% block content %}
+<div class="ticket-view">
+    <div class="ticket-header card">
+        <div class="card-content">
+            <div class="ticket-header-top">
+                <a href="{{ url_for('tickets.index') }}" class="btn btn-ghost btn-sm back-link">
+                    <span class="material-icons">arrow_back</span>
+                    К списку
+                </a>
+                <span class="ticket-id-badge">#{{ ticket.id }}</span>
+                <span class="ticket-status-badge {{ ticket.status_class }}">{{ ticket.status_display }}</span>
+            </div>
+            <h1 class="ticket-title">{{ ticket.subject }}</h1>
+            <p class="ticket-date">
+                <span class="material-icons">schedule</span>
+                Создан {{ ticket.created_at.strftime('%d.%m.%Y в %H:%M') }}
+                {% if ticket.messages_count > 0 %}
+                · {{ ticket.messages_count }} сообщ.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="ticket-messages">
+        <div class="message-item message-initial">
+            <div class="message-avatar">
+                <span class="material-icons">person</span>
+            </div>
+            <div class="message-body">
+                <div class="message-header">
+                    <span class="message-author">{{ ticket.user.display_name }}</span>
+                    <span class="message-time">{{ ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                </div>
+                <div class="message-text">{{ ticket.message }}</div>
+            </div>
+        </div>
+
+        {% for msg in messages %}
+        <div class="message-item {% if msg.is_admin %}message-admin{% endif %}">
+            <div class="message-avatar">
+                <span class="material-icons">{% if msg.is_admin %}admin_panel_settings{% else %}person{% endif %}</span>
+            </div>
+            <div class="message-body">
+                <div class="message-header">
+                    <span class="message-author">{% if msg.is_admin %}Администратор{% else %}{{ msg.author.display_name }}{% endif %}</span>
+                    <span class="message-time">{{ msg.time_formatted }}</span>
+                </div>
+                <div class="message-text">{{ msg.message }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if ticket.is_open %}
+    <div class="ticket-reply card">
+        <div class="card-content">
+            <form method="POST" action="{{ url_for('tickets.reply', id=ticket.id) }}" class="reply-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="reply">Ваш ответ</label>
+                    <textarea id="reply" name="message" required class="form-control" rows="4" placeholder="Введите сообщение..."></textarea>
+                </div>
+                <div class="reply-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">send</span>
+                        Отправить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="ticket-actions">
+        {% if ticket.is_open %}
+        <form method="POST" action="{{ url_for('tickets.close', id=ticket.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost">
+                <span class="material-icons">check_circle</span>
+                Закрыть тикет
+            </button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('tickets.index') }}" class="btn btn-ghost">
+            <span class="material-icons">list</span>
+            Все обращения
+        </a>
+    </div>
+</div>
+{% endblock %}

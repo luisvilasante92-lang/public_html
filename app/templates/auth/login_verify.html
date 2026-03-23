@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
+    <meta name="theme-color" content="#141416" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#141416" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Код подтверждения | LVR Music Publishing</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page auth-login-page-v2 auth-verify-page-v2" data-accent="orange">
+    <div class="auth-login-bg" aria-hidden="true">
+        <div class="auth-login-bg-grid"></div>
+        <div class="auth-login-bg-glow auth-login-bg-glow-1"></div>
+        <div class="auth-login-bg-glow auth-login-bg-glow-2"></div>
+    </div>
+
+    <div class="auth-login-shell">
+        <aside class="auth-login-aside" aria-hidden="true">
+            <div class="auth-login-aside-inner">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="auth-login-aside-logo" width="180" height="45">
+                <h2 class="auth-login-aside-title">Защита<br>вашего аккаунта</h2>
+                <p class="auth-login-aside-text">Мы отправили 5-значный код на вашу почту и/или телефон. Введите его для подтверждения входа.</p>
+                <ul class="auth-login-aside-features">
+                    <li><span class="material-icons">mail</span> Код приходит на почту и/или телефон</li>
+                    <li><span class="material-icons">schedule</span> Код действителен 10 минут</li>
+                    <li><span class="material-icons">verified_user</span> Двухэтапная проверка</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="auth-login-main">
+            <div class="auth-login-card auth-verify-card">
+                <div class="auth-login-card-accent" aria-hidden="true"></div>
+
+                <div class="auth-login-card-header">
+                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="LVR Music Publishing" class="auth-login-card-logo-mobile" width="140" height="35">
+                    <h1 class="auth-card-title">Введите код</h1>
+                    <p class="auth-card-subtitle">5-значный код отправлен на {% if display_email and user.phone %}<strong>почту {{ display_email }}</strong> и <strong>телефон {{ user.phone }}</strong>{% elif display_email %}<strong>{{ display_email }}</strong>{% elif user.phone %}<strong>телефон {{ user.phone }}</strong>{% else %}вашу почту и/или телефон{% endif %}</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    <div class="auth-flash-messages">
+                        {% for category, message in messages %}
+                        <div class="auth-flash auth-flash-{{ category }}">
+                            <span class="material-icons">{% if category == 'success' %}check_circle{% elif category == 'error' %}error{% elif category == 'warning' %}warning{% else %}info{% endif %}</span>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.login_verify') }}" class="auth-form auth-verify-form" id="verifyForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="code" id="codeHidden" value="" required>
+
+                    <div class="auth-verify-code-row">
+                        <input type="text" id="code0" class="auth-verify-code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" aria-label="Цифра 1" data-digit="0" placeholder="·">
+                        <input type="text" id="code1" class="auth-verify-code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 2" data-digit="1" placeholder="·">
+                        <input type="text" id="code2" class="auth-verify-code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 3" data-digit="2" placeholder="·">
+                        <input type="text" id="code3" class="auth-verify-code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 4" data-digit="3" placeholder="·">
+                        <input type="text" id="code4" class="auth-verify-code-box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 5" data-digit="4" placeholder="·">
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn auth-login-submit auth-verify-submit" id="verifySubmit" disabled>
+                        <span class="auth-submit-text">Подтвердить</span>
+                        <span class="material-icons auth-submit-icon">arrow_forward</span>
+                    </button>
+                </form>
+
+                <footer class="auth-verify-footer">
+                    <div class="auth-verify-actions">
+                        <form id="login-verify-resend-form" method="POST" action="{{ url_for('auth.login_verify_resend') }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="auth-resend-link">Отправить код повторно</button>
+                        </form>
+                        <span class="auth-verify-sep">·</span>
+                        <a href="{{ url_for('auth.login') }}" class="auth-back-link">← Вернуться к входу</a>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    (function() {
+        var digits = document.querySelectorAll('.auth-verify-code-box');
+        var hidden = document.getElementById('codeHidden');
+        var form = document.getElementById('verifyForm');
+        var submitBtn = document.getElementById('verifySubmit');
+
+        function updateCode() {
+            var code = Array.from(digits).map(function(d) { return d.value; }).join('');
+            hidden.value = code;
+            submitBtn.disabled = code.length !== 5;
+        }
+
+        digits.forEach(function(input, i) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 1);
+                if (this.value && i < digits.length - 1) digits[i + 1].focus();
+                updateCode();
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && i > 0) digits[i - 1].focus();
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                var paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 5);
+                for (var j = 0; j < paste.length && j < digits.length; j++) { digits[j].value = paste[j]; }
+                if (paste.length > 0) digits[Math.min(paste.length, digits.length) - 1].focus();
+                updateCode();
+            });
+        });
+
+        if (digits.length) digits[0].focus();
+    })();
+    </script>
+</body>
+</html>

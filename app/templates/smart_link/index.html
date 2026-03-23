@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Смарт-ссылки{% endblock %}
+{% block page_title %}Смарт-ссылки{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<a href="{{ url_for('smart_link.create') }}" class="btn btn-primary"><span class="material-icons">add</span> Создать смарт-ссылку</a>
+{% if links %}
+<div class="uni-list">
+{% for link in links %}
+<div class="uni-list__row">
+  <div class="uni-list__main">
+    <strong>{{ link.display_name }}</strong>
+    <br><code style="font-size:0.8125rem;">{{ link.full_url }}</code>
+    <br><span class="form-hint">Посещений: {{ link.visits_count }}, кликов: {{ link.clicks_count }}</span>
+  </div>
+  <div class="uni-list__actions">
+    <a href="{{ url_for('smart_link.view', id=link.id) }}" class="btn btn-ghost btn-sm">Подробнее</a>
+    <a href="{{ url_for('smart_link.edit', id=link.id) }}" class="btn btn-ghost btn-sm">Редактировать</a>
+    <form method="POST" action="{{ url_for('smart_link.delete', id=link.id) }}" onsubmit="return confirm('Удалить?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить</button></form>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="uni-list"><div class="uni-list__row" style="justify-content:center;border:none;"><div class="empty-state small" style="margin:0;"><p>Смарт-ссылок нет</p></div></div></div>
+{% endif %}
+</div>
+{% endblock %}

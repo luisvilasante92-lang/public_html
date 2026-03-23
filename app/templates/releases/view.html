@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{{ release.title }}{% endblock %}
+{% block page_title %}{{ release.title }}{% endblock %}
+
+{% block content %}
+<div class="release-view-page">
+    <!-- Статус модерации — крупно и заметно -->
+    <div class="release-status-bar {{ release.status_class }}">
+        <span class="material-icons">{% if release.status == 'approved' %}check_circle{% elif release.status == 'rejected' %}cancel{% elif release.status == 'moderation' %}schedule{% elif release.status == 'draft' %}edit{% else %}folder{% endif %}</span>
+        <strong>{{ release.status_display }}</strong>
+    </div>
+    
+    <!-- Навигация -->
+    <div class="breadcrumb">
+        <a href="{{ url_for('releases.index') }}">Релизы</a>
+        <span class="material-icons">chevron_right</span>
+        <span>{{ release.title }}</span>
+    </div>
+    
+    <div class="release-details">
+        <!-- Основная информация -->
+        <div class="release-header">
+            <div class="release-cover-large">
+                <img src="{{ release.cover_url }}" alt="{{ release.title }}">
+            </div>
+            
+            <div class="release-info-main">
+                
+                <h1>{{ release.title }}{% if release.version %} ({{ release.version }}){% endif %}</h1>
+                <p class="release-artists-large">{{ release.artists }}</p>
+                
+                <div class="release-meta-grid">
+                    <div class="meta-item">
+                        <span class="meta-label">Тип</span>
+                        <span class="meta-value">{{ release.type_display }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Жанр</span>
+                        <span class="meta-value">{{ release.genre }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Дата релиза</span>
+                        <span class="meta-value">{{ release.release_date.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Копирайт</span>
+                        <span class="meta-value">{{ release.copyright or '-' }}</span>
+                    </div>
+                    {% if release.upc %}
+                    <div class="meta-item">
+                        <span class="meta-label">UPC</span>
+                        <span class="meta-value">{{ release.upc }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Комментарий модератора -->
+                {% if release.moderator_comment %}
+                <div class="moderator-comment">
+                    <span class="material-icons">comment</span>
+                    <div>
+                        <strong>Комментарий модератора:</strong>
+                        <p>{{ release.moderator_comment }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Действия -->
+                <div class="release-actions">
+                    {% if release.can_edit() %}
+                    <a href="{{ url_for('releases.edit', id=release.id) }}" class="btn btn-primary">
+                        <span class="material-icons">edit</span>
+                        Редактировать
+                    </a>
+                    {% endif %}
+                    
+                    {% if release.can_submit() %}
+                    <form method="POST" action="{{ url_for('releases.submit', id=release.id) }}" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-success">
+                            <span class="material-icons">send</span>
+                            Отправить на модерацию
+                        </button>
+                    </form>
+                    {% endif %}
+                    
+                    {% if release.can_delete() %}
+                    <form method="POST" action="{{ url_for('releases.delete', id=release.id) }}" class="inline-form" 
+                          onsubmit="return confirm('Вы уверены?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger btn-ghost">
+                            <span class="material-icons">delete</span>
+                            {% if release.status == 'draft' %}Удалить{% else %}Запросить удаление{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Треки -->
+        <div class="release-tracks">
+            <h3><span class="material-icons">music_note</span> Треки ({{ tracks|length }})</h3>
+            
+            {% if tracks %}
+            <div class="tracks-list">
+                {% for track in tracks %}
+                <div class="track-item">
+                    <div class="track-order">{{ track.track_order }}</div>
+                    <div class="track-info">
+                        <div class="track-title">
+                            {{ track.display_title }}
+                            {% if track.explicit %}
+                            <span class="explicit-badge">E</span>
+                            {% endif %}
+                        </div>
+                        <div class="track-artists">{{ track.artists }}</div>
+                    </div>
+                    <div class="track-meta">
+                        {% if track.isrc %}<span class="track-isrc">{{ track.isrc }}</span>{% endif %}
+                    </div>
+                    <a href="{{ track.file_url }}" class="btn btn-ghost btn-sm" download>
+                        <span class="material-icons">download</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state small">
+                <span class="material-icons">music_off</span>
+                <p>Треки не добавлены</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

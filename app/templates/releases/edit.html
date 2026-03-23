@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование: {{ release.title }}{% endblock %}
+{% block page_title %}Редактирование релиза{% endblock %}
+
+{% block content %}
+<div class="release-edit-page">
+    <nav class="release-edit-nav">
+        <a href="{{ url_for('releases.index') }}">Релизы</a>
+        <span class="material-icons">chevron_right</span>
+        <a href="{{ url_for('releases.view', id=release.id) }}">{{ release.title }}</a>
+        <span class="material-icons">chevron_right</span>
+        <span>Редактирование</span>
+    </nav>
+    
+    <form method="POST" enctype="multipart/form-data" class="release-edit-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <!-- Hero: обложка и основное -->
+        <div class="release-edit-hero">
+            <div class="release-edit-cover-wrap">
+                <input type="file" name="cover" id="coverInput" accept=".jpg,.jpeg,.png" hidden>
+                <div class="release-edit-cover" id="coverPreview" onclick="document.getElementById('coverInput').click()">
+                    {% if release.cover %}
+                    <img src="{{ release.cover_url }}" alt="{{ release.title }}">
+                    {% else %}
+                    <div class="release-edit-cover-placeholder">
+                        <span class="material-icons">add_photo_alternate</span>
+                        <span>Обложка</span>
+                    </div>
+                    {% endif %}
+                    <div class="release-edit-cover-overlay">
+                        <span class="material-icons">photo_camera</span>
+                        <span>Сменить</span>
+                    </div>
+                </div>
+            </div>
+            <div class="release-edit-hero-info">
+                <div class="release-edit-hero-field">
+                    <label>Название</label>
+                    <input type="text" name="title" required value="{{ release.title }}" placeholder="Название релиза">
+                </div>
+                <div class="release-edit-hero-field">
+                    <label>Артисты</label>
+                    <input type="text" name="artists" required value="{{ release.artists }}" placeholder="Артисты">
+                </div>
+                <div class="release-edit-hero-meta">
+                    <select name="type">
+                        <option value="Single" {% if release.type == 'Single' %}selected{% endif %}>Сингл</option>
+                        <option value="EP" {% if release.type == 'EP' %}selected{% endif %}>EP</option>
+                        <option value="Album" {% if release.type == 'Album' %}selected{% endif %}>Альбом</option>
+                    </select>
+                    <span class="meta-dot">·</span>
+                    <input type="text" name="genre" required value="{{ release.genre }}" placeholder="Жанр">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Карточка деталей -->
+        <div class="release-edit-card">
+            <h3 class="release-edit-card-title">Детали релиза</h3>
+            <div class="release-edit-fields">
+                <div class="release-edit-field">
+                    <label>Версия</label>
+                    <input type="text" name="version" value="{{ release.version or '' }}" placeholder="Радио, Extended">
+                </div>
+                <div class="release-edit-field">
+                    <label>Дата релиза</label>
+                    <input type="date" name="release_date" value="{{ release.release_date.strftime('%Y-%m-%d') }}">
+                </div>
+                <div class="release-edit-field">
+                    <label>UPC/EAN</label>
+                    <input type="text" name="upc" value="{{ release.upc or '' }}" placeholder="Код релиза (необязательно)" maxlength="20">
+                </div>
+                <label class="release-edit-checkbox">
+                    <input type="checkbox" name="yandex_presave" {% if release.yandex_presave %}checked{% endif %}>
+                    <span>Яндекс Пресейв</span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- Кнопки сохранения -->
+        <div class="release-edit-actions">
+            <a href="{{ url_for('releases.view', id=release.id) }}" class="release-edit-btn release-edit-btn-ghost">Отмена</a>
+            <button type="submit" class="release-edit-btn release-edit-btn-save">
+                <span class="material-icons">check</span>
+                Сохранить
+            </button>
+        </div>
+        
+        <!-- Треки -->
+        <div class="release-edit-tracks">
+            <div class="release-edit-tracks-head">
+                <h3>Треки</h3>
+                <span class="release-edit-tracks-count">{{ tracks|length }}</span>
+                <button type="button" class="release-edit-add-track" onclick="openTrackModal()">
+                    <span class="material-icons">add</span>
+                    Добавить
+                </button>
+            </div>
+            
+            {% if tracks %}
+            <div class="release-edit-tracks-list">
+                {% for track in tracks %}
+                <div class="release-edit-track">
+                    <span class="release-edit-track-num">{{ track.track_order }}</span>
+                    <div class="release-edit-track-info">
+                        <span class="release-edit-track-title">{{ track.display_title }}</span>
+                        <span class="release-edit-track-artists">{{ track.artists }}</span>
+                    </div>
+                    <div class="release-edit-track-actions">
+                        <button type="button" class="release-edit-track-btn" onclick="editTrack({{ track.id }}, '{{ track.title }}', '{{ track.artists }}')">
+                            <span class="material-icons">edit</span>
+                        </button>
+                        <form method="POST" action="{{ url_for('releases.delete_track', release_id=release.id, track_id=track.id) }}" class="inline-form" onsubmit="return confirm('Удалить трек?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="release-edit-track-btn release-edit-track-btn-danger">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="release-edit-tracks-empty" onclick="openTrackModal()">
+                <div class="release-edit-tracks-empty-icon">
+                    <span class="material-icons">library_music</span>
+                </div>
+                <p>Треков пока нет</p>
+                <span class="release-edit-tracks-empty-hint">Нажмите, чтобы добавить первый трек</span>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Модальное окно добавления трека на модерацию -->
+<div class="modal modal-track-submit" id="addTrackModal">
+    <div class="modal-overlay" onclick="closeTrackModal()"></div>
+    <div class="modal-content track-submit-content">
+        <div class="track-submit-header">
+            <div class="track-submit-header-bg"></div>
+            <div class="track-submit-header-inner">
+                <span class="track-submit-badge">Модерация</span>
+                <h2>Новый трек</h2>
+                <p>Заполните данные для отправки на проверку</p>
+            </div>
+            <button type="button" class="track-submit-close" onclick="closeTrackModal()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{{ url_for('releases.add_track', release_id=release.id) }}" enctype="multipart/form-data" class="track-submit-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="track-submit-body">
+                <div class="track-submit-panels">
+                    <!-- Левая панель: медиа -->
+                    <div class="track-submit-panel track-submit-panel-media">
+                        <div class="track-submit-card wav-card">
+                            <div class="track-submit-card-icon">
+                                <span class="material-icons">graphic_eq</span>
+                            </div>
+                            <input type="file" name="wav_file" id="wavFileInput" accept=".wav" required hidden>
+                            <div class="wav-drop-area" id="wavUploadZone" onclick="document.getElementById('wavFileInput').click()" role="button" tabindex="0" aria-label="Выберите WAV файл">
+                                <span class="material-icons wav-drop-icon">audio_file</span>
+                                <span class="wav-drop-title">WAV аудио</span>
+                                <span class="wav-drop-desc" id="wavFileName">Нажмите или перетащите файл</span>
+                                <span class="wav-drop-mobile-hint" aria-hidden="true">Нажмите для выбора файла</span>
+                            </div>
+                        </div>
+                        <div class="track-submit-card lyrics-card">
+                            <div class="track-submit-card-label">
+                                <span class="material-icons">lyrics</span>
+                                Текст песни
+                            </div>
+                            <textarea name="lyrics" id="lyricsTextarea" class="track-submit-lyrics" rows="6" placeholder="Вставьте текст или загрузите файл"></textarea>
+                            <div class="lyrics-actions">
+                                <input type="file" id="lyricsFileInput" accept=".txt,.lrc" hidden>
+                                <label for="lyricsFileInput" class="lyrics-upload-btn">
+                                    <span class="material-icons">upload</span>
+                                    .txt / .lrc
+                                </label>
+                                <span class="lyrics-file-name" id="lyricsFileName"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Правая панель: метаданные -->
+                    <div class="track-submit-panel track-submit-panel-info">
+                        <div class="track-submit-card info-card">
+                            <div class="track-submit-card-label">
+                                <span class="material-icons">info</span>
+                                Метаданные
+                            </div>
+                            <div class="track-submit-fields">
+                                <div class="track-submit-field">
+                                    <label>Название <span class="req">*</span></label>
+                                    <input type="text" name="title" required placeholder="Название трека">
+                                </div>
+                                <div class="track-submit-field">
+                                    <label>Артисты <span class="req">*</span></label>
+                                    <input type="text" name="artists" required value="{{ release.artists }}" placeholder="Артисты">
+                                </div>
+                                <div class="track-submit-field half">
+                                    <label>Версия</label>
+                                    <input type="text" name="version" placeholder="Radio, Extended">
+                                </div>
+                                <div class="track-submit-field half">
+                                    <label>Композиторы</label>
+                                    <input type="text" name="composers" placeholder="">
+                                </div>
+                                <div class="track-submit-field">
+                                    <label>ISRC</label>
+                                    <input type="text" name="isrc" placeholder="Код трека (необязательно)" maxlength="20">
+                                </div>
+                                <div class="track-submit-field">
+                                    <label>Авторы текста</label>
+                                    <input type="text" name="authors" placeholder="">
+                                    <div class="authors-hint" style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem; line-height: 1.5;">
+                                        <strong>Важно:</strong> Пожалуйста, указывайте полные имена авторов и авторов инструментала в строго указанном порядке: <strong>Имя Отчество Фамилия</strong> (например, <strong>Иван Иванович Иванов</strong>) или <strong>Имя Фамилия</strong> (например, <strong>Иван Иванов</strong>). Использование никнеймов, псевдонимов или иных форматов не допускается и будет отклонено. Порядок имени, отчества и фамилии должен быть строго соблюден.
+                                    </div>
+                                </div>
+                                <label class="track-submit-explicit">
+                                    <input type="checkbox" name="explicit">
+                                    <span>Explicit контент</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="track-submit-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeTrackModal()">Отмена</button>
+                <button type="submit" class="track-submit-btn">
+                    <span class="material-icons">send</span>
+                    Отправить на модерацию
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openTrackModal() {
+    var modal = document.getElementById('addTrackModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.classList.add('track-modal-open');
+    }
+}
+function closeTrackModal() {
+    var modal = document.getElementById('addTrackModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.classList.remove('track-modal-open');
+    }
+}
+document.getElementById('coverInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('coverPreview');
+    if (file && preview) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const overlay = '<div class="release-edit-cover-overlay"><span class="material-icons">photo_camera</span><span>Сменить</span></div>';
+            preview.innerHTML = '<img src="' + ev.target.result + '" alt="Cover">' + overlay;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+// WAV файл — отображение выбранного и drag-and-drop
+(function() {
+    const input = document.getElementById('wavFileInput');
+    const card = document.querySelector('.wav-card');
+    const zone = document.getElementById('wavUploadZone');
+    const hint = document.getElementById('wavFileName');
+    if (!input || !zone || !card) return;
+    function updateState() {
+        if (input.files.length) {
+            card.classList.add('has-file');
+            card.classList.remove('show-mobile-hint');
+            hint.textContent = input.files[0].name;
+        } else {
+            card.classList.remove('has-file');
+            card.classList.add('show-mobile-hint');
+            hint.textContent = 'Нажмите или перетащите файл';
+        }
+    }
+    updateState();
+    input.addEventListener('change', updateState);
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length && e.dataTransfer.files[0].name.toLowerCase().endsWith('.wav')) {
+            input.files = e.dataTransfer.files;
+            updateState();
+        }
+    });
+    zone.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            input.click();
+        }
+    });
+})();
+// Текст песен — при выборе файла читаем и подставляем в textarea
+document.getElementById('lyricsFileInput').addEventListener('change', function(e) {
+    const file = this.files[0];
+    const ta = document.getElementById('lyricsTextarea');
+    const fn = document.getElementById('lyricsFileName');
+    if (!file) {
+        fn.textContent = '';
+        return;
+    }
+    fn.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = function() {
+        ta.value = reader.result;
+    };
+    reader.readAsText(file, 'UTF-8');
+});
+</script>
+{% endblock %}

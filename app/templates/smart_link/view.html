@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ link.display_name }}{% endblock %}
+{% block page_title %}{{ link.display_name }}{% endblock %}
+{% block content %}
+<div class="card"><div class="card-content">
+<p><strong>Ссылка:</strong> <code>{{ link.full_url }}</code> <button type="button" class="btn btn-ghost btn-sm" onclick="copyToClipboard('{{ link.full_url }}')">Копировать</button></p>
+<p><strong>Посещений:</strong> {{ total_visits }}</p>
+<p><strong>Кликов:</strong> {{ total_clicks }}</p>
+{% if platform_clicks %}<p><strong>По платформам:</strong> {% for pc in platform_clicks %}{{ pc.platform }}: {{ pc.count }} {% endfor %}</p>{% endif %}
+</div></div>
+<a href="{{ url_for('smart_link.edit', id=link.id) }}" class="btn btn-primary" style="margin-top:1rem;">Редактировать</a>
+<a href="{{ url_for('smart_link.index') }}" class="btn btn-ghost" style="margin-top:1rem;">Назад</a>
+{% endblock %}

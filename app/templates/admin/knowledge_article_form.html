@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}{% if article %}Статья{% else %}Новая статья{% endif %} — база знаний{% endblock %}
+{% block page_title %}{% if article %}Редактирование статьи{% else %}Новая статья{% endif %}{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css">
+<div class="uni-skin" style="max-width:960px;">
+  <p style="margin-bottom:1rem;"><a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost btn-sm">← К обзору</a></p>
+  <form id="ka-form" method="POST" action="{% if article %}{{ url_for('admin.knowledge_article_edit', aid=article.id) }}{% else %}{{ url_for('admin.knowledge_article_new') }}{% endif %}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ka-section">Раздел</label>
+      <select name="section_id" id="ka-section" class="form-select" required>
+        {% for s in sections %}
+        <option value="{{ s.id }}" data-slug="{{ s.slug }}" {% if s.id == form_section_id %}selected{% endif %}>{{ s.title }} ({{ s.slug }})</option>
+        {% endfor %}
+      </select>
+      <p class="form-hint" style="margin-top:0.35rem;">Публичная ссылка: <code id="kb-url">/knowledge/<span id="kb-sec"></span>/<span id="kb-art">{{ form_slug or 'адрес-статьи' }}</span></code></p>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ka-topic">Подраздел (вкладка)</label>
+      <select name="topic_id" id="ka-topic" class="form-select">
+        <option value="">— не выбрано (список «Без подраздела») —</option>
+        {% for s in sections %}
+          {% for t in section_topics.get(s.id, []) %}
+          <option value="{{ t.id }}" data-section-id="{{ s.id }}" {% if form_topic_id is not none and t.id == form_topic_id %}selected{% endif %}>{{ t.title }}</option>
+          {% endfor %}
+        {% endfor %}
+      </select>
+      <p class="form-hint" style="margin-top:0.35rem;">Если в разделе включены подразделы, статья попадёт на соответствующую вкладку. Без выбора — только во вкладке «Без подраздела» (если она есть).</p>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ka-slug">Адрес статьи (slug внутри раздела)</label>
+      <input type="text" name="slug" id="ka-slug" class="form-input" required value="{{ form_slug }}" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="vozvraty">
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ka-title">Заголовок</label>
+      <input type="text" name="title" id="ka-title" class="form-input" required maxlength="255" value="{{ form_title }}">
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ka-summary">Краткое описание (список внутри раздела)</label>
+      <textarea name="summary" id="ka-summary" class="form-textarea" rows="2" maxlength="500">{{ form_summary }}</textarea>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label">Текст статьи</label>
+      <div id="quill-editor" class="knowledge-quill-wrap" style="min-height:280px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--border-radius-sm);"></div>
+      <textarea name="body_html" id="body_html_input" class="visually-hidden" aria-hidden="true">{{ form_body|e }}</textarea>
+      <p class="form-hint" style="margin-top:0.35rem;">Пустой текст = статья не показывается посетителям. Для раздела без статей сработает запасной шаблон (если вы его задали в настройках раздела).</p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:center;margin-bottom:1rem;">
+      <div>
+        <label class="form-label" for="ka-sort">Порядок в списке</label>
+        <input type="number" name="sort_order" id="ka-sort" class="form-input" style="max-width:120px;" value="{{ form_sort_order }}">
+      </div>
+      <label style="display:flex;align-items:center;gap:0.5rem;margin-top:1.25rem;cursor:pointer;">
+        <input type="checkbox" name="is_published" value="on" {% if form_published %}checked{% endif %}>
+        <span>Опубликовано</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:0.5rem;margin-top:1.25rem;cursor:pointer;" title="Открывается по адресу /knowledge/раздел без второго сегмента">
+        <input type="checkbox" name="is_landing" value="on" {% if form_landing %}checked{% endif %}>
+        <span>Главная статья раздела</span>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary">Сохранить</button>
+      <a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost">Отмена</a>
+    </div>
+  </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script>
+(function() {
+  var ta0 = document.getElementById('body_html_input');
+  var initial = (ta0 && ta0.value) ? ta0.value : '';
+  var quill = new Quill('#quill-editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['blockquote', 'code-block'],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
+  if (initial.trim()) quill.root.innerHTML = initial;
+  document.getElementById('ka-form').addEventListener('submit', function() {
+    document.getElementById('body_html_input').value = quill.root.innerHTML;
+  });
+  var sel = document.getElementById('ka-section');
+  var topicSel = document.getElementById('ka-topic');
+  var sl = document.getElementById('ka-slug');
+  var ks = document.getElementById('kb-sec');
+  var ka = document.getElementById('kb-art');
+  function syncUrl() {
+    if (!sel || !ks || !ka || !sl) return;
+    var opt = sel.options[sel.selectedIndex];
+    ks.textContent = opt ? opt.getAttribute('data-slug') : '';
+    ka.textContent = sl.value.trim() || 'адрес-статьи';
+  }
+  function syncTopics() {
+    if (!sel || !topicSel) return;
+    var sid = String(sel.value);
+    var opts = topicSel.querySelectorAll('option[data-section-id]');
+    for (var i = 0; i < opts.length; i++) {
+      var o = opts[i];
+      var show = String(o.getAttribute('data-section-id')) === sid;
+      o.hidden = !show;
+      o.disabled = !show;
+    }
+    var cur = topicSel.selectedOptions[0];
+    if (cur && cur.disabled) topicSel.value = '';
+  }
+  if (sel) sel.addEventListener('change', function() { syncTopics(); syncUrl(); });
+  if (sl) sl.addEventListener('input', syncUrl);
+  syncTopics();
+  syncUrl();
+})();
+</script>
+<style>
+.knowledge-quill-wrap .ql-toolbar { border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0; border-color: var(--border) !important; background: var(--bg-tertiary); }
+.knowledge-quill-wrap .ql-container { border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm); border-color: var(--border) !important; font-family: inherit; font-size: 0.9375rem; min-height: 220px; }
+.knowledge-quill-wrap .ql-editor { min-height: 220px; color: var(--text-primary); }
+</style>
+{% endblock %}

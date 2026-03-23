@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — инструкция{% endblock %}
+{% block page_title %}Личный кабинет — полная инструкция{% endblock %}
+{% block content %}
+<div class="knowledge-portal knowledge-guide uni-skin kb-surface kb-surface--guide">
+    <nav class="kb-breadcrumb breadcrumb kb-surface__breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">Личный кабинет</span>
+    </nav>
+
+    <header class="kb-chapter-hero kb-chapter-hero--guide" aria-labelledby="kb-guide-heading">
+        <div class="kb-chapter-hero__glow kb-chapter-hero__glow--guide" aria-hidden="true"></div>
+        <div class="kb-chapter-hero__inner">
+            <div class="kb-chapter-hero__icon-wrap kb-chapter-hero__icon-wrap--guide" aria-hidden="true">
+                <span class="material-icons">menu_book</span>
+            </div>
+            <p class="kb-chapter-hero__eyebrow">Пошаговая инструкция</p>
+            <h1 id="kb-guide-heading" class="kb-chapter-hero__title">Личный кабинет</h1>
+            <p class="kb-chapter-hero__lead">Работа с релизами, финансами, поддержкой и профилем — с пояснениями к каждому экрану.</p>
+        </div>
+    </header>
+
+    <div class="kb-guide-intro kb-guide-intro--v2">
+        <span class="material-icons kb-guide-intro__icon" aria-hidden="true">touch_app</span>
+        <p>Ниже — разделы по порядку. Переходите по оглавлению или листайте страницу: к каждому шагу приложены скриншоты интерфейса.</p>
+    </div>
+
+    <nav class="kb-guide-toc" aria-label="Оглавление инструкции">
+        <span class="kb-guide-toc__label">На странице</span>
+        <ul class="kb-guide-toc__list">
+            <li><a href="#step-1">1. Вход</a></li>
+            <li><a href="#step-2">2. Дашборд</a></li>
+            <li><a href="#step-3">3. Новый релиз</a></li>
+            <li><a href="#step-4">4. Список релизов</a></li>
+            <li><a href="#step-5">5. Финансы</a></li>
+            <li><a href="#step-6">6. Смарт-ссылки</a></li>
+            <li><a href="#step-7">7. Новости</a></li>
+            <li><a href="#step-8">8. Поддержка</a></li>
+            <li><a href="#step-9">9. Профиль</a></li>
+        </ul>
+    </nav>
+
+    <!-- Шаг 1: Вход -->
+    <section class="guide-step guide-step--v2" id="step-1">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">1</span>
+            <h2>Вход в личный кабинет</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Откройте страницу входа. Введите электронную почту (или логин) и пароль. Нажмите кнопку «Войти».</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-01.png') }}" alt="Страница входа в личный кабинет" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Страница входа. Укажите email и пароль, нажмите «Войти».</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 2: Главная страница -->
+    <section class="guide-step guide-step--v2" id="step-2">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">2</span>
+            <h2>Главная страница (Дашборд)</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>После входа вы попадёте на главную страницу. Здесь отображаются: последняя новость, блок финансов по кварталам, быстрые действия. Боковое меню слева — навигация по разделам.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-02.png') }}" alt="Главная страница личного кабинета" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Главная страница. Боковое меню — навигация. Справа — последняя новость и финансы.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 3: Новый релиз -->
+    <section class="guide-step guide-step--v2" id="step-3">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">3</span>
+            <h2>Создание релиза</h2>
+        </div>
+        <div class="guide-step-body">
+            <p><strong>3.1.</strong> Нажмите «Новый релиз» в боковом меню или на странице релизов.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.png') }}" alt="Кнопка «Новый релиз»" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Кнопка «Новый релиз» в боковом меню.</span>
+            </div>
+
+            <p><strong>3.2.</strong> Загрузите обложку 3000×3000 px (JPG или PNG). Перетащите файл в область загрузки или нажмите для выбора.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.2.png') }}" alt="Загрузка обложки релиза" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Область загрузки обложки. Обложка 3000×3000 px, квадрат.</span>
+            </div>
+
+            <p><strong>3.3.</strong> Заполните основные данные: название релиза, артисты (подставляются из профиля), тип релиза (сингл / EP / альбом), жанр, дату релиза.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.3.png') }}" alt="Заполнение данных релиза" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Форма с данными: название, артисты, тип, жанр, дата.</span>
+            </div>
+
+            <p><strong>3.4.</strong> Сохраните черновик.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.4.png') }}" alt="Сохранение черновика" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Сохранение черновика релиза.</span>
+            </div>
+
+            <p><strong>3.5.</strong> Добавьте треки: загрузите WAV-файлы, укажите название и артистов для каждого.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.5.png') }}" alt="Добавление треков" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Добавление треков. Формат WAV, укажите название и артистов.</span>
+            </div>
+
+            <p><strong>3.6.</strong> Нажмите «Отправить на модерацию». Релиз будет проверен модератором (до 72 часов).</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.6.png') }}" alt="Отправка на модерацию" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Кнопка «Отправить на модерацию».</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 4: Релизы -->
+    <section class="guide-step guide-step--v2" id="step-4">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">4</span>
+            <h2>Список релизов и управление</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В разделе «Релизы» — все ваши релизы. Можно фильтровать по статусу, искать. Нажмите на карточку для просмотра и редактирования (если статус «Черновик»).</p>
+            <ul>
+                <li><strong>Черновик</strong> — можно редактировать и удалять</li>
+                <li><strong>На модерации</strong> — ожидает проверки (до 72 часов)</li>
+                <li><strong>Одобрено</strong> — релиз будет размещён на площадках в течение 24 часов</li>
+                <li><strong>Отклонено</strong> — в комментарии указана причина, можно исправить и отправить снова</li>
+            </ul>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-04.png') }}" alt="Список релизов" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Список релизов с фильтрами и статусами.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 5: Финансы -->
+    <section class="guide-step guide-step--v2" id="step-5">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">5</span>
+            <h2>Финансы и выплаты</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В разделе «Финансы» — отчёты по выплатам за кварталы. Отчётность обновляется раз в 3 месяца. Для получения выплаты подайте заявку на согласование и укажите реквизиты карты или счёта.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-06.png') }}" alt="Раздел Финансы" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Финансы: отчёты по кварталам, заявка на выплату.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 6: Смарт-ссылки -->
+    <section class="guide-step guide-step--v2" id="step-6">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">6</span>
+            <h2>Смарт-ссылки</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Создавайте единые ссылки на релиз для всех площадок (Spotify, Apple Music, Яндекс.Музыка, VK Музыка и др.). Удобно для промо в соцсетях.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-07.png') }}" alt="Смарт-ссылки" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Создание смарт-ссылки на релиз.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 7: Новости -->
+    <section class="guide-step guide-step--v2" id="step-7">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">7</span>
+            <h2>Новости</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Раздел с новостями и анонсами от LVR Music Publishing. Читайте последние объявления.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-08.png') }}" alt="Раздел Новости" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Новости и анонсы.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 8: Поддержка -->
+    <section class="guide-step guide-step--v2" id="step-8">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">8</span>
+            <h2>Поддержка</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Создавайте тикеты в разделе «Поддержка» для вопросов по релизам, выплатам и работе кабинета. Опишите проблему — ответ поступит в течение 72 часов.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-09.png') }}" alt="Раздел Поддержка" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Создание тикета в поддержку.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Шаг 9: Профиль -->
+    <section class="guide-step guide-step--v2" id="step-9">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">9</span>
+            <h2>Профиль</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В профиле можно изменить имя, email, пароль. Имя артиста используется по умолчанию при создании релизов. Убедитесь, что данные корректны.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-10.png') }}" alt="Профиль пользователя" onerror="this.parentElement.classList.add('img-placeholder')">
+                <span class="guide-img-caption">Редактирование профиля: имя, email, пароль.</span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="kb-footer-actions kb-surface__footer">
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span> К базе знаний
+        </a>
+    </footer>
+</div>
+{% endblock %}

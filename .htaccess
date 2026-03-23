@@ -1,0 +1,10 @@
+PassengerEnabled On
+PassengerAppRoot /home/s/suppoyyo/luisv-records.ru/public_html
+
+# Интерпретатор Python:
+# 1) Рекомендуется: создать venv на сервере по SSH (см. deploy/beget/PASSENGER.md) и указать полный путь:
+#    PassengerPython /home/s/suppoyyo/luisv-records.ru/public_html/venv/bin/python
+# 2) Временно, если venv ещё нет — системный Python (зависимости: pip3 install --user -r requirements.txt):
+PassengerPython /usr/bin/python3
+
+PassengerFriendlyErrorPages on

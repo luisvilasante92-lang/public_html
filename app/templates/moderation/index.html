@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Модерация{% endblock %}
+{% block page_title %}Модерация релизов{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="filters-bar">
+    <a href="{{ url_for('moderation.index', tab='moderation') }}" class="btn {% if tab == 'moderation' %}btn-primary{% else %}btn-ghost{% endif %}">В работе ({{ counts.moderation }})</a>
+    <a href="{{ url_for('moderation.index', tab='approved') }}" class="btn {% if tab == 'approved' %}btn-primary{% else %}btn-ghost{% endif %}">Одобренные</a>
+    <a href="{{ url_for('moderation.index', tab='deletion') }}" class="btn {% if tab == 'deletion' %}btn-primary{% else %}btn-ghost{% endif %}">На удалении</a>
+</div>
+<div class="releases-grid">
+    {% for release in releases.items %}
+    <a href="{{ url_for('moderation.view', id=release.id) }}" class="release-card">
+        <div class="release-cover"><img src="{{ release.cover_url }}" alt="{{ release.title }}"><div class="release-status {{ release.status_class }}">{{ release.status_display }}</div></div>
+        <div class="release-info"><h3>{{ release.title }}</h3><p>{{ release.artists }}</p><p style="font-size:0.75rem;">{{ release.owner.name }}</p></div>
+    </a>
+    {% endfor %}
+</div>
+{% if not releases.items %}<div class="empty-state"><p>Релизов нет</p></div>{% endif %}
+{% if releases.pages > 1 %}
+<div class="pagination">
+    {% if releases.has_prev %}<a href="{{ url_for('moderation.index', tab=tab, page=releases.prev_num) }}" class="btn btn-ghost"><span class="material-icons">chevron_left</span></a>{% endif %}
+    <span class="pagination-info">Страница {{ releases.page }} из {{ releases.pages }}</span>
+    {% if releases.has_next %}<a href="{{ url_for('moderation.index', tab=tab, page=releases.next_num) }}" class="btn btn-ghost"><span class="material-icons">chevron_right</span></a>{% endif %}
+</div>
+{% endif %}
+</div>
+{% endblock %}

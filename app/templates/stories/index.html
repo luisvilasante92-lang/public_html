@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Новости{% endblock %}
+{% block page_title %}Новости{% endblock %}
+{% block content %}
+<div class="news-page uni-skin">
+    <div class="news-grid">
+        {% for item in news.items %}
+        <a href="{{ url_for('stories.view', id=item.id) }}" class="news-card">
+            <div class="news-card-cover">
+                {% if item.cover_image %}
+                <img src="{{ item.cover_url }}" alt="{{ item.title }}">
+                {% else %}
+                <div class="news-card-placeholder">
+                    <span class="material-icons">article</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="news-card-body">
+                <span class="news-card-date">{{ item.date_formatted }}</span>
+                <h3 class="news-card-title">{{ item.title }}</h3>
+                <p class="news-card-excerpt">{{ item.short_content }}</p>
+                <span class="news-card-link">Читать <span class="material-icons">arrow_forward</span></span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if news.pages > 1 %}
+    <div class="pagination news-pagination">
+        {% if news.has_prev %}<a href="{{ url_for('stories.index', page=news.prev_num) }}" class="btn btn-ghost"><span class="material-icons">chevron_left</span></a>{% endif %}
+        <span class="pagination-info">Страница {{ news.page }} из {{ news.pages }}</span>
+        {% if news.has_next %}<a href="{{ url_for('stories.index', page=news.next_num) }}" class="btn btn-ghost"><span class="material-icons">chevron_right</span></a>{% endif %}
+    </div>
+    {% endif %}
+
+    {% if not news.items %}
+    <div class="news-empty empty-state">
+        <span class="material-icons">article</span>
+        <p>Новостей пока нет</p>
+    </div>
+    {% endif %}
+
+    {% if current_user.is_admin %}
+    <a href="{{ url_for('stories.create') }}" class="btn btn-primary news-create-btn">
+        <span class="material-icons">add</span> Создать новость
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

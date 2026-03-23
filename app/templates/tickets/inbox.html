@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Поддержка{% endblock %}
+{% block page_title %}Поддержка{% endblock %}
+{% block body_class %}tickets-inbox-page{% endblock %}
+{% block content_class %}tickets-content{% endblock %}
+{% block content %}
+<div class="tickets-page-wrap tickets-mobile-wrap">
+<div class="tickets-inbox tickets-inbox-mobile{% if selected_ticket %} tickets-inbox--has-selection{% endif %}">
+    <!-- Левая панель: архив обращений -->
+    <aside class="tickets-sidebar">
+        <div class="tickets-sidebar-header">
+            <a href="{{ url_for('tickets.create') }}" class="btn btn-primary btn-block">
+                <span class="material-icons">add</span>
+                Новое обращение
+            </a>
+        </div>
+        <div class="tickets-filters">
+            <a href="{{ url_for('tickets.index') }}" class="filter-tab {% if not status %}active{% endif %}">
+                <span class="material-icons">folder_open</span>
+                Все ({{ counts.all }})
+            </a>
+            <a href="{{ url_for('tickets.index', status='open') }}" class="filter-tab {% if status == 'open' %}active{% endif %}">
+                <span class="material-icons">chat_bubble</span>
+                Открытые ({{ counts.open }})
+            </a>
+            <a href="{{ url_for('tickets.index', status='closed') }}" class="filter-tab {% if status == 'closed' %}active{% endif %}">
+                <span class="material-icons">check_circle</span>
+                Закрытые ({{ counts.closed }})
+            </a>
+        </div>
+        <div class="tickets-list-sidebar">
+            {% if tickets_list %}
+            {% for t in tickets_list %}
+            <a href="{{ url_for('tickets.view', id=t.id) }}" class="ticket-list-item {% if selected_ticket and selected_ticket.id == t.id %}active{% endif %}">
+                <div class="ticket-list-item-header">
+                    <span class="ticket-list-id">{{ t.display_id }}</span>
+                    <span class="ticket-list-status {{ t.status_class }}">{{ t.status_display }}</span>
+                </div>
+                <div class="ticket-list-subject">{{ t.subject }}</div>
+                <div class="ticket-list-meta">
+                    {{ t.created_at.strftime('%d.%m.%Y') }}
+                    {% if t.messages_count > 0 %}
+                    <span class="ticket-list-replies">{{ t.messages_count }}</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <div class="tickets-sidebar-empty">
+                <span class="material-icons">inbox</span>
+                <p>Обращений нет</p>
+            </div>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- Правая панель: чат (на мобильном — обёртка .ticket-chat-screen фиксирована на весь экран) -->
+    <div class="ticket-chat-screen{% if selected_ticket %} ticket-chat-screen--open{% endif %}">
+    <main class="tickets-chat{% if not selected_ticket %} tickets-chat--empty{% endif %}">
+        {% if selected_ticket %}
+        <div class="ticket-chat-header">
+            <a href="{{ url_for('tickets.index', status=status) }}" class="ticket-chat-back" aria-label="Назад к списку">
+                <span class="material-icons">arrow_back</span>
+                <span class="ticket-chat-back-text">К списку</span>
+            </a>
+            <div class="ticket-chat-title-row">
+                <span class="ticket-chat-id">{{ selected_ticket.display_id }}</span>
+                <span class="ticket-chat-status {{ selected_ticket.status_class }}">{{ selected_ticket.status_display }}</span>
+            </div>
+            <h2 class="ticket-chat-subject">{{ selected_ticket.subject }}</h2>
+            <p class="ticket-chat-date">
+                <span class="material-icons">schedule</span>
+                Создан {{ selected_ticket.created_at.strftime('%d.%m.%Y в %H:%M') }}
+            </p>
+        </div>
+
+        <div class="ticket-chat-messages">
+            {# Первое сообщение от автора тикета. У пользователя — справа, у админа — слева #}
+            <div class="chat-message {% if not current_user.is_admin %}chat-message-me{% else %}chat-message-other{% endif %} chat-message-from-user">
+                <div class="chat-message-avatar">
+                    <img src="{{ selected_ticket.user.avatar_url }}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-icons" style="display:none;">person</span>
+                </div>
+                <div class="chat-message-body">
+                    <div class="chat-message-header">
+                        <span class="chat-message-author">{{ selected_ticket.user.display_name }}</span>
+                        <span class="chat-message-time">{{ selected_ticket.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                    </div>
+                    <div class="chat-message-text">{{ selected_ticket.message }}</div>
+                </div>
+            </div>
+
+            {% for msg in messages %}
+            {# У пользователя: свои справа. У админа: свои справа #}
+            <div class="chat-message {% if (current_user.is_admin and msg.is_admin) or (not current_user.is_admin and not msg.is_admin) %}chat-message-me{% else %}chat-message-other{% endif %} {% if msg.is_admin %}chat-message-from-admin{% else %}chat-message-from-user{% endif %}">
+                <div class="chat-message-avatar">
+                    {% if msg.is_admin %}
+                    <span class="material-icons">admin_panel_settings</span>
+                    {% else %}
+                    <img src="{{ msg.author.avatar_url }}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                    <span class="material-icons" style="display:none;">person</span>
+                    {% endif %}
+                </div>
+                <div class="chat-message-body">
+                    <div class="chat-message-header">
+                        <span class="chat-message-author">{% if msg.is_admin %}Администратор{% else %}{{ msg.author.display_name }}{% endif %}</span>
+                        <span class="chat-message-time">{{ msg.time_formatted }}</span>
+                    </div>
+                    <div class="chat-message-text">{{ msg.message }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if selected_ticket.is_open %}
+        <div class="ticket-chat-reply" id="ticket-reply-bar">
+            <form method="POST" action="{{ url_for('tickets.reply', id=selected_ticket.id) }}" class="chat-reply-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <textarea name="message" required class="chat-reply-input" rows="2" placeholder="Введите сообщение..." autocomplete="off" enterkeyhint="send" aria-label="Текст сообщения"></textarea>
+                <div class="chat-reply-actions">
+                    <button type="submit" class="btn btn-primary chat-reply-send" aria-label="Отправить сообщение">
+                        <span class="material-icons">send</span>
+                        <span class="chat-reply-send-text">Отправить</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="ticket-chat-actions">
+            {% if selected_ticket.is_open %}
+            <form method="POST" action="{{ url_for('tickets.close', id=selected_ticket.id) }}" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm">
+                    <span class="material-icons">check_circle</span>
+                    Закрыть обращение
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="tickets-chat-empty">
+            <span class="material-icons">support_agent</span>
+            <h3>Выберите обращение</h3>
+            <p>Выберите обращение из списка слева или создайте новое</p>
+            <a href="{{ url_for('tickets.create') }}" class="btn btn-primary">
+                <span class="material-icons">add</span>
+                Создать обращение
+            </a>
+        </div>
+        {% endif %}
+    </main>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var hasChat = document.querySelector('.tickets-inbox--has-selection') || document.querySelector('.ticket-chat-screen--open');
+    if (hasChat) {
+        document.body.classList.add('tickets-chat-open');
+        if (window.matchMedia('(max-width: 768px)').matches) {
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            requestAnimationFrame(function() {
+                window.scrollTo(0, 0);
+            });
+        }
+        var messagesEl = document.querySelector('.ticket-chat-messages');
+        if (messagesEl) {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+    }
+    var input = document.querySelector('.chat-reply-input');
+    var replyBar = document.getElementById('ticket-reply-bar');
+    if (input && replyBar) {
+        input.addEventListener('focus', function() {
+            setTimeout(function() {
+                replyBar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 300);
+        });
+    }
+})();
+</script>
+{% endblock %}

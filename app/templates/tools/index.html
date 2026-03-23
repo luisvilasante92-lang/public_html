@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Инструменты{% endblock %}
+{% block page_title %}Инструменты{% endblock %}
+{% block content %}
+<div class="tools-page uni-skin">
+    <div class="tools-header">
+        <h1>Питчинг релиза</h1>
+        <p>Отправьте заявку на питчинг вашего релиза и отслеживайте статус рассмотрения.</p>
+    </div>
+
+    <!-- Ссылка на автоматическую форму (дублирует пункт меню «Инструменты» → «Автоматическая форма») -->
+    <a href="{{ url_for('tools.auto_form') }}" class="tools-auto-form-link">
+        <span class="material-icons">description</span>
+        <div>
+            <strong>Форма для типовых задач (Автоматическая форма)</strong>
+            <span>Перенос релиза на другую карточку, нотка в YouTube, восстановление в VK и др. Также в меню слева: Инструменты → Автоматическая форма.</span>
+        </div>
+        <span class="material-icons">arrow_forward</span>
+    </a>
+
+    <!-- Форма -->
+    <div class="tools-form-card">
+        <h2 class="tools-form-title">
+            <span class="material-icons">send</span>
+            Новая заявка
+        </h2>
+        <form method="POST" action="{{ url_for('tools.create_pitch') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="tools-form-body">
+                {% if releases %}
+                <div class="tools-form-field">
+                    <label>Выбрать из релизов (опционально)</label>
+                    <select name="release_id" id="releaseSelect" class="tools-form-select">
+                        <option value="">— Указать вручную —</option>
+                        {% for r in releases %}
+                        <option value="{{ r.id }}" data-title="{{ r.title|e }}" data-artists="{{ r.artists|e }}" data-genre="{{ r.genre|e }}">{{ r.title }} — {{ r.artists }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="tools-form-row">
+                    <div class="tools-form-field">
+                        <label>Название <span class="req">*</span></label>
+                        <input type="text" name="title" id="pitchTitle" required placeholder="Название релиза">
+                    </div>
+                    <div class="tools-form-field">
+                        <label>Артисты <span class="req">*</span></label>
+                        <input type="text" name="artists" id="pitchArtists" required placeholder="Артисты" value="{{ current_user.display_name }}">
+                    </div>
+                </div>
+                <div class="tools-form-field">
+                    <label>Жанр</label>
+                    <input type="text" name="genre" id="pitchGenre" placeholder="Pop, Hip-Hop, Rock...">
+                </div>
+                <div class="tools-form-field">
+                    <label>Комментарий</label>
+                    <textarea name="comment" rows="3" placeholder="Дополнительная информация для питчинга"></textarea>
+                </div>
+                <div class="tools-form-actions">
+                    <button type="submit" class="tools-form-btn">
+                        <span class="material-icons">send</span>
+                        Отправить заявку
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Список заявок -->
+    <div class="tools-list-section">
+        <h2 class="tools-list-title">
+            <span class="material-icons">history</span>
+            Мои заявки ({{ pitches|length }})
+        </h2>
+        {% if pitches %}
+        <div class="tools-pitches-list">
+            {% for pitch in pitches %}
+            <div class="tools-pitch-card">
+                <div class="tools-pitch-header">
+                    <span class="tools-pitch-status {{ pitch.status_class }}">{{ pitch.status_display }}</span>
+                    <span class="tools-pitch-date">{{ pitch.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                </div>
+                <h3 class="tools-pitch-title">{{ pitch.title }}</h3>
+                <p class="tools-pitch-artists">{{ pitch.artists }}{% if pitch.genre %} · {{ pitch.genre }}{% endif %}</p>
+                {% if pitch.comment %}
+                <p class="tools-pitch-comment">{{ pitch.comment[:150] }}{% if pitch.comment|length > 150 %}...{% endif %}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="tools-empty">
+            <span class="material-icons">inbox</span>
+            <p>Заявок пока нет</p>
+            <span class="tools-empty-hint">Заполните форму выше, чтобы отправить заявку на питчинг</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('releaseSelect')?.addEventListener('change', function() {
+    var opt = this.options[this.selectedIndex];
+    if (opt.value && opt.dataset.title) {
+        document.getElementById('pitchTitle').value = opt.dataset.title || '';
+        document.getElementById('pitchArtists').value = opt.dataset.artists || '';
+        document.getElementById('pitchGenre').value = opt.dataset.genre || '';
+    }
+});
+</script>
+{% endblock %}

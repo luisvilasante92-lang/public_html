@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{% if section %}Раздел{% else %}Новый раздел{% endif %} — база знаний{% endblock %}
+{% block page_title %}{% if section %}Редактирование раздела{% else %}Новый раздел{% endif %}{% endblock %}
+{% block content %}
+<div class="uni-skin" style="max-width:640px;">
+  <p style="margin-bottom:1rem;"><a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost btn-sm">← К обзору</a></p>
+  <form method="POST" action="{% if section %}{{ url_for('admin.knowledge_section_edit', sid=section.id) }}{% else %}{{ url_for('admin.knowledge_section_new') }}{% endif %}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ks-slug">Адрес в URL (slug)</label>
+      {% if section %}
+      <input type="text" id="ks-slug" class="form-input" value="{{ form_slug }}" readonly style="background:var(--bg-tertiary);">
+      <p class="form-hint" style="margin-top:0.35rem;">Сменить адрес нельзя (сломаются ссылки). При необходимости создайте новый раздел.</p>
+      {% else %}
+      <input type="text" name="slug" id="ks-slug" class="form-input" required value="{{ form_slug }}" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="naprimer-dokumenty">
+      <p class="form-hint" style="margin-top:0.35rem;">Только латиница и дефисы. Страница: <code>/knowledge/<span id="ks-slug-hint">{{ form_slug or '…' }}</span></code></p>
+      {% endif %}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ks-title">Название раздела</label>
+      <input type="text" name="title" id="ks-title" class="form-input" required maxlength="255" value="{{ form_title }}">
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ks-summary">Краткое описание (карточка на главной базы знаний)</label>
+      <textarea name="summary" id="ks-summary" class="form-textarea" rows="2" maxlength="500">{{ form_summary }}</textarea>
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ks-icon">Иконка Material Icons</label>
+      <input type="text" name="icon" id="ks-icon" class="form-input" maxlength="64" value="{{ form_icon }}" placeholder="menu_book">
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ks-sort">Порядок на главной</label>
+      <input type="number" name="sort_order" id="ks-sort" class="form-input" style="max-width:120px;" value="{{ form_sort_order }}">
+    </div>
+
+    <div style="margin-bottom:1rem;">
+      <label class="form-label" for="ks-fb">Если нет статей с текстом</label>
+      <select name="static_fallback" id="ks-fb" class="form-select">
+        {% for val, label in static_fallback_choices %}
+        <option value="{{ val }}" {% if form_static_fallback == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;cursor:pointer;">
+      <input type="checkbox" name="is_published" value="on" {% if form_published %}checked{% endif %}>
+      <span>Раздел опубликован (виден в базе знаний)</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;cursor:pointer;">
+      <input type="checkbox" name="highlight_index" value="on" {% if form_highlight %}checked{% endif %}>
+      <span>Крупная карточка на главной (как раньше у «Личного кабинета»)</span>
+    </label>
+
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary">Сохранить</button>
+      <a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost">Отмена</a>
+    </div>
+  </form>
+</div>
+{% if not section %}
+<script>
+(function() {
+  var s = document.getElementById('ks-slug');
+  var h = document.getElementById('ks-slug-hint');
+  if (s && h) s.addEventListener('input', function() { h.textContent = s.value || '…'; });
+})();
+</script>
+{% endif %}
+{% endblock %}

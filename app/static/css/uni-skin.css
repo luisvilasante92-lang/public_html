@@ -1,0 +1,276 @@
+/**
+ * Единый визуальный слой для разделов кабинета.
+ * Оборачивайте {% block content %} в <div class="uni-skin">...</div>
+ */
+
+.uni-skin {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-bottom: 2rem;
+}
+
+/* Панель фильтров / табов — как тулбар релизов */
+.uni-skin > .filters-bar,
+.uni-skin .filters-bar:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    margin-bottom: 1.25rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.uni-skin .filters-bar .btn {
+    border-radius: 10px;
+}
+
+/* Карточки */
+.uni-skin > .card,
+.uni-skin > .dashboard-card,
+.uni-skin .card {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+}
+
+.uni-skin .card-header,
+.uni-skin .dashboard-card > .card-header {
+    padding: 1rem 1.25rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+}
+
+.uni-skin .card-content {
+    padding: 1rem 1.25rem;
+}
+
+/* Баннер сверху (финансы и т.д.) */
+.uni-skin > .finance-banner {
+    margin-bottom: 1.25rem;
+    border-radius: 14px;
+}
+
+/* Списки строк вместо inline-стилей */
+.uni-list {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+}
+
+.uni-list__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+}
+
+.uni-list__row:last-child {
+    border-bottom: none;
+}
+
+.uni-list__row:hover {
+    background: var(--bg-hover);
+}
+
+.uni-list__main {
+    flex: 1;
+    min-width: 0;
+}
+
+.uni-list__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uni-list__actions form {
+    display: inline;
+}
+
+/* Кнопка сверху */
+.uni-skin > .btn.btn-primary:first-child,
+.uni-skin > a.btn-primary:first-of-type {
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.25);
+}
+
+/* Пагинация */
+.uni-skin .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.uni-skin .pagination .btn {
+    border-radius: 12px;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* Форма в одну колонку с лимитом */
+.uni-skin .auto-form-page,
+.uni-skin.auto-form-page {
+    max-width: 640px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.uni-skin .auto-form-page .card,
+.uni-skin.auto-form-page .card {
+    border-radius: 18px;
+    padding: 1.5rem 1.75rem !important;
+}
+
+/* tools-page, news-page, knowledge-page внутри uni-skin */
+.uni-skin.tools-page .tools-header,
+.uni-skin .tools-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.uni-skin .tools-auto-form-link {
+    border-radius: 14px;
+    margin-bottom: 1.25rem;
+}
+
+.uni-skin .tools-form-card {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.5rem;
+}
+
+.uni-skin .tools-admin-tabs {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 1.25rem;
+}
+
+.uni-skin .tools-admin-tab {
+    border-radius: 10px;
+}
+
+.uni-skin .releases-grid {
+    gap: 1.25rem;
+}
+
+.uni-skin .release-card {
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.uni-skin .release-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+}
+
+/* admin management stats */
+.uni-skin .stats-grid {
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.uni-skin .stat-card {
+    border-radius: 14px;
+    transition: border-color 0.2s;
+}
+
+.uni-skin .stat-card:hover {
+    border-color: rgba(249, 115, 22, 0.3);
+}
+
+.uni-skin .quick-actions .actions-grid {
+    gap: 1rem;
+}
+
+.uni-skin .action-card {
+    border-radius: 14px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.uni-skin .action-card:hover {
+    transform: translateY(-3px);
+}
+
+/* knowledge hub */
+.uni-skin.knowledge-page .knowledge-hero {
+    border-radius: 18px;
+    margin-bottom: 1.5rem;
+}
+
+.uni-skin.knowledge-portal .kb-home-hero {
+    border-radius: 20px;
+}
+
+.uni-skin.knowledge-portal .kb-doc {
+    border-radius: 18px;
+}
+
+.uni-skin .knowledge-toc-card {
+    border-radius: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* news page */
+.uni-skin.news-page .news-grid {
+    gap: 1.25rem;
+}
+
+.uni-skin .news-card {
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.uni-skin .news-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Пустое состояние */
+.uni-skin .empty-state {
+    padding: 2rem 1.5rem;
+    border-radius: 14px;
+}
+
+@media (max-width: 640px) {
+    .uni-skin {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .uni-list__row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .uni-list__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
+    <meta name="theme-color" content="#0c0c0e" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0c0c0e" media="(prefers-color-scheme: dark)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Вход | LVR Music Publishing</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="auth-page auth-login-page-v2" data-accent="orange">
+    <div class="auth-login-bg" aria-hidden="true">
+        <div class="auth-login-bg-grid"></div>
+        <div class="auth-login-bg-glow auth-login-bg-glow-1"></div>
+        <div class="auth-login-bg-glow auth-login-bg-glow-2"></div>
+    </div>
+
+    <div class="auth-login-shell">
+        <aside class="auth-login-aside" aria-hidden="true">
+            <div class="auth-login-aside-inner">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" class="auth-login-aside-logo" width="180" height="45">
+                <h2 class="auth-login-aside-title">Личный кабинет<br>артиста и лейбла</h2>
+                <p class="auth-login-aside-text">Релизы, финансы, смарт-ссылки и поддержка — в одном месте.</p>
+                <ul class="auth-login-aside-features">
+                    <li><span class="material-icons">album</span> Управление релизами</li>
+                    <li><span class="material-icons">payments</span> Отчёты и выплаты</li>
+                    <li><span class="material-icons">support</span>Поддержка 24/7</li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="auth-login-main">
+            <div class="auth-login-card">
+                <div class="auth-login-card-accent" aria-hidden="true"></div>
+
+                <div class="auth-login-card-header">
+                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="LVR Music Publishing" class="auth-login-card-logo-mobile" width="140" height="35">
+                    <h1 class="auth-card-title">Вход в личный кабинет</h1>
+                    <p class="auth-card-subtitle">Введите логин или email и пароль</p>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    <div class="auth-flash-messages">
+                        {% for category, message in messages %}
+                        <div class="auth-flash auth-flash-{{ category }}">
+                            <span class="material-icons">{% if category == 'success' %}check_circle{% elif category == 'error' %}error{% elif category == 'support' %}support_agent{% else %}info{% endif %}</span>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" class="auth-form auth-login-form" autocomplete="on">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="auth-form-group">
+                        <label for="login">Логин или email</label>
+                        <div class="auth-input-wrap">
+                            <span class="auth-input-icon material-icons">mail_outline</span>
+                            <input type="text" id="login" name="login" required class="auth-input" autocomplete="username" placeholder="example@mail.ru">
+                        </div>
+                    </div>
+
+                    <div class="auth-form-group">
+                        <label for="password">Пароль</label>
+                        <div class="auth-password-wrap">
+                            <span class="auth-input-icon material-icons">lock_outline</span>
+                            <input type="password" id="password" name="password" required class="auth-input" autocomplete="current-password" placeholder="••••••••">
+                            <button type="button" class="auth-password-toggle" onclick="var p=document.getElementById('password');var i=this.querySelector('.material-icons');p.type=p.type==='password'?'text':'password';i.textContent=p.type==='password'?'visibility':'visibility_off';" aria-label="Показать пароль">
+                                <span class="material-icons">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-forgot-wrap">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="auth-forgot-link">Забыли пароль?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit-btn auth-login-submit">
+                        <span class="auth-submit-text">Войти</span>
+                        <span class="material-icons auth-submit-icon">arrow_forward</span>
+                    </button>
+                </form>
+
+                <footer class="auth-login-footer">
+                    <a href="{{ url_for('auth.faq') }}"><span class="material-icons">help_outline</span> Часто задаваемые вопросы</a>
+                </footer>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

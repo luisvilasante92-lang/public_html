@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ news.title }}{% endblock %}
+{% block page_title %}{{ news.title }}{% endblock %}
+{% block content %}
+<article class="news-article">
+    {% if news.cover_image %}
+    <div class="news-article-hero">
+        <img src="{{ news.cover_url }}" alt="{{ news.title }}">
+    </div>
+    {% endif %}
+
+    <div class="news-article-content">
+        <time class="news-article-date" datetime="{{ news.created_at.isoformat() if news.created_at else '' }}">
+            {{ news.date_formatted }}
+        </time>
+        <h1 class="news-article-title">{{ news.title }}</h1>
+        <div class="news-article-body">{{ news.content }}</div>
+    </div>
+
+    <div class="news-article-actions">
+        <a href="{{ url_for('stories.index') }}" class="btn btn-ghost">
+            <span class="material-icons">arrow_back</span> Назад к новостям
+        </a>
+        {% if current_user.is_admin %}
+        <div class="news-article-admin">
+            <a href="{{ url_for('stories.edit', id=news.id) }}" class="btn btn-primary">Редактировать</a>
+            <form method="POST" action="{{ url_for('stories.delete', id=news.id) }}" style="display:inline;" onsubmit="return confirm('Удалить новость?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger btn-ghost">Удалить</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

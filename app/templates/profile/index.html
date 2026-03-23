@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+{% block page_title %}Профиль{% endblock %}
+{% block content %}
+<div class="profile-page uni-skin">
+    <!-- Герой: аватар + имя + роль -->
+    <section class="profile-hero" aria-label="Профиль">
+        <div class="profile-hero__bg" aria-hidden="true"></div>
+        <div class="profile-hero__inner">
+            <div class="profile-hero__avatar-wrap">
+                <img src="{{ current_user.avatar_url }}" alt="" class="profile-hero__avatar" width="96" height="96">
+            </div>
+            <div class="profile-hero__text">
+                <h2 class="profile-hero__name">{{ current_user.display_name }}</h2>
+                <p class="profile-hero__email">{{ current_user.email }}</p>
+                <div class="profile-hero__meta">
+                    <span class="profile-role profile-role--{{ current_user.role }}">
+                        {% if current_user.is_admin %}Администратор{% elif current_user.is_label %}Лейбл{% else %}Артист{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="profile-hero__actions">
+                <a href="{{ url_for('profile.edit') }}" class="btn btn-primary">
+                    <span class="material-icons">edit</span>
+                    Редактировать
+                </a>
+                <a href="{{ url_for('profile.change_password') }}" class="btn btn-ghost">
+                    <span class="material-icons">lock</span>
+                    Сменить пароль
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Карточка: данные профиля -->
+    <section class="profile-info card">
+        <header class="card-header">
+            <h3 class="card-header__title"><span class="material-icons">person</span> Данные аккаунта</h3>
+        </header>
+        <div class="card-content profile-info__grid">
+            <div class="profile-info__row">
+                <span class="profile-info__label">Имя</span>
+                <span class="profile-info__value">{{ current_user.name or '—' }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">Email</span>
+                <span class="profile-info__value">{{ current_user.email }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">Логин</span>
+                <span class="profile-info__value">{{ current_user.login }}</span>
+            </div>
+            {% if current_user.copyright %}
+            <div class="profile-info__row">
+                <span class="profile-info__label">Копирайт</span>
+                <span class="profile-info__value">{{ current_user.copyright }}</span>
+            </div>
+            {% endif %}
+            {% if current_user.phone %}
+            <div class="profile-info__row">
+                <span class="profile-info__label">Телефон</span>
+                <span class="profile-info__value">{{ current_user.phone }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Налоговая и платёжная информация -->
+    <section class="profile-info card profile-tax-section">
+        <header class="card-header profile-tax-section__head">
+            <h3 class="card-header__title"><span class="material-icons">receipt_long</span> Налоговая и платёжная информация</h3>
+            <a href="{{ url_for('profile.tax_info_edit') }}" class="btn btn-ghost btn-sm profile-tax-section__edit-btn">
+                <span class="material-icons">edit</span>
+                Редактировать
+            </a>
+        </header>
+        <div class="card-content profile-info__grid">
+            <p class="profile-tax-hint text-secondary">Используется для договоров и выплат.</p>
+            {% if current_user.is_admin %}
+            <p class="profile-tax-hint text-secondary">Свои реквизиты вы можете править по кнопке «Редактировать». Реквизиты других пользователей — в разделе «Пользователи» (обычно после тикета).</p>
+            {% endif %}
+            <div class="profile-info__row">
+                <span class="profile-info__label">Налоговый статус</span>
+                <span class="profile-info__value">{{ current_user.tax_status_display }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">Наименование юр. лица / ИП</span>
+                <span class="profile-info__value">{{ current_user.tax_legal_name or '—' }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">ИНН</span>
+                <span class="profile-info__value">{{ current_user.tax_inn or '—' }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">Расчётный счёт</span>
+                <span class="profile-info__value">{{ current_user.tax_bank_account or '—' }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">Банк</span>
+                <span class="profile-info__value">{{ current_user.tax_bank_name or '—' }}</span>
+            </div>
+            <div class="profile-info__row">
+                <span class="profile-info__label">БИК</span>
+                <span class="profile-info__value">{{ current_user.tax_bank_bik or '—' }}</span>
+            </div>
+            {% if not current_user.is_admin %}
+            <div class="profile-tax-support-cta">
+                <span class="material-icons" aria-hidden="true">support_agent</span>
+                <span>Чтобы изменить эти данные, напишите в <a href="{{ url_for('tickets.create') }}">поддержку</a> — администратор внесёт правки после заявки.</span>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Блок для администратора: быстрые ссылки -->
+    {% if current_user.is_admin %}
+    <section class="profile-admin card">
+        <header class="card-header">
+            <h3 class="card-header__title"><span class="material-icons">admin_panel_settings</span> Администрирование</h3>
+            <span class="profile-role profile-role--admin">Админ</span>
+        </header>
+        <div class="card-content">
+            <nav class="profile-admin__links" aria-label="Быстрые действия админа">
+                <a href="{{ url_for('users.index') }}" class="profile-admin__link">
+                    <span class="material-icons">people</span>
+                    Пользователи
+                </a>
+                <a href="{{ url_for('admin.management') }}" class="profile-admin__link">
+                    <span class="material-icons">business</span>
+                    Фирма
+                </a>
+                <a href="{{ url_for('moderation.index') }}" class="profile-admin__link">
+                    <span class="material-icons">fact_check</span>
+                    Модерация
+                </a>
+                <a href="{{ url_for('money.approvals') }}" class="profile-admin__link">
+                    <span class="material-icons">approval</span>
+                    Согласование
+                </a>
+            </nav>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

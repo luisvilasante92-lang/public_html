@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Новая смарт-ссылка{% endblock %}
+{% block page_title %}Создание смарт-ссылки{% endblock %}
+{% block content %}
+<form method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Релиз *</label><select name="release_id" required class="form-control">{% for r in releases %}<option value="{{ r.id }}">{{ r.title }}</option>{% endfor %}</select></div>
+<div class="form-group"><label>Название (опционально)</label><input type="text" name="custom_name" class="form-control"></div>
+<div class="form-group"><label>Тема</label><select name="theme" class="form-control"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></div>
+<p><strong>Ссылки на платформы:</strong></p>
+<div class="form-group"><label>Spotify</label><input type="url" name="link_spotify" class="form-control" placeholder="https://..."></div>
+<div class="form-group"><label>Apple Music</label><input type="url" name="link_apple_music" class="form-control"></div>
+<div class="form-group"><label>Яндекс Музыка</label><input type="url" name="link_yandex_music" class="form-control"></div>
+<div class="form-group"><label>VK Музыка</label><input type="url" name="link_vk_music" class="form-control"></div>
+<div class="form-group"><label>YouTube Music</label><input type="url" name="link_youtube_music" class="form-control"></div>
+<div class="form-group"><label>Deezer</label><input type="url" name="link_deezer" class="form-control"></div>
+<div class="form-actions"><a href="{{ url_for('smart_link.index') }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary">Создать</button></div>
+</form>
+{% endblock %}

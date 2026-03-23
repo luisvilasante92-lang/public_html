@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ release.title }} | LVR Music Publishing</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Manrope',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+        body.theme-dark{background:#0f0f0f;color:#fff;}
+        body.theme-light{background:#f5f5f5;color:#1a1a1a;}
+        .container{text-align:center;max-width:400px;}
+        .cover{width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;margin-bottom:1rem;}
+        h1{font-size:1.5rem;margin-bottom:0.25rem;}
+        .artists{color:inherit;opacity:0.8;margin-bottom:1.5rem;}
+        .platforms{display:flex;flex-wrap:wrap;gap:0.75rem;justify-content:center;}
+        .platform-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.25rem;border-radius:8px;text-decoration:none;font-weight:600;transition:opacity 0.2s;}
+        .theme-dark .platform-btn{background:#00bea2;color:#000;}
+        .theme-light .platform-btn{background:#00bea2;color:#000;}
+        .platform-btn:hover{opacity:0.9;}
+    </style>
+</head>
+<body class="theme-{{ link.theme }}">
+    <div class="container">
+        <img src="{{ release.cover_url }}" alt="{{ release.title }}" class="cover">
+        <h1>{{ release.title }}</h1>
+        <p class="artists">{{ release.artists }}</p>
+        <div class="platforms">
+            {% for pl in link.get_platform_links_list() %}
+            <a href="{{ url_for('smart_link.track_click', link_code=link.link_code, platform=pl.key) }}" class="platform-btn" target="_blank" rel="noopener">{{ pl.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

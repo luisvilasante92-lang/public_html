@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Релизы{% endblock %}
+{% block page_title %}Мои релизы{% endblock %}
+
+{% block content %}
+<div class="releases-page releases-redesign">
+    <!-- Шапка раздела -->
+    <header class="rel-head">
+        <div class="rel-head__text">
+            <h1 class="rel-head__title">Релизы</h1>
+            <p class="rel-head__subtitle">Каталог, статусы и переход к карточке релиза</p>
+        </div>
+        <div class="rel-head__actions">
+            <a href="{{ url_for('releases.export') }}" class="rel-btn rel-btn--ghost" title="Экспорт в CSV">
+                <span class="material-icons">download</span>
+                Экспорт
+            </a>
+            <a href="{{ url_for('releases.create') }}" class="rel-btn rel-btn--primary">
+                <span class="material-icons">add</span>
+                Новый релиз
+            </a>
+        </div>
+    </header>
+
+    <!-- Панель фильтров -->
+    <div class="rel-toolbar">
+        <form method="GET" class="rel-toolbar__form">
+            <div class="rel-search">
+                <span class="material-icons rel-search__icon" aria-hidden="true">search</span>
+                <input type="text" name="search" class="rel-search__input" value="{{ search }}" placeholder="Название или артист…" autocomplete="off">
+            </div>
+            <div class="rel-select-wrap">
+                <label class="rel-sr-only" for="rel-status">Статус</label>
+                <select name="status" id="rel-status" class="rel-select" onchange="this.form.submit()" aria-label="Фильтр по статусу">
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if value == current_status %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <span class="material-icons rel-select__chevron" aria-hidden="true">expand_more</span>
+            </div>
+            <button type="submit" class="rel-btn rel-btn--icon" title="Применить фильтр" aria-label="Применить фильтр">
+                <span class="material-icons">tune</span>
+            </button>
+        </form>
+    </div>
+
+    {% if releases.items %}
+    <div class="rel-grid">
+        {% for release in releases.items %}
+        <a href="{{ url_for('releases.view', id=release.id) }}" class="rel-card">
+            <div class="rel-card__cover">
+                <img src="{{ release.cover_url }}" alt="" loading="lazy">
+                <span class="rel-card__badge {{ release.status_class }}">{{ release.status_display }}</span>
+            </div>
+            <div class="rel-card__body">
+                <h2 class="rel-card__title">{{ release.title }}</h2>
+                <p class="rel-card__artists">{{ release.artists }}</p>
+                <div class="rel-card__meta">
+                    <span class="rel-card__type">{{ release.type_display }}</span>
+                    <span class="rel-card__tracks">
+                        <span class="material-icons" aria-hidden="true">music_note</span>
+                        {{ release.tracks_count }}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if releases.pages > 1 %}
+    <nav class="rel-pagination" aria-label="Страницы">
+        {% if releases.has_prev %}
+        <a href="{{ url_for('releases.index', page=releases.prev_num, status=current_status, search=search) }}" class="rel-page-btn" aria-label="Предыдущая страница">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% else %}
+        <span class="rel-page-btn rel-page-btn--disabled" aria-disabled="true"><span class="material-icons">chevron_left</span></span>
+        {% endif %}
+        <span class="rel-page-info">Страница {{ releases.page }} из {{ releases.pages }}</span>
+        {% if releases.has_next %}
+        <a href="{{ url_for('releases.index', page=releases.next_num, status=current_status, search=search) }}" class="rel-page-btn" aria-label="Следующая страница">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% else %}
+        <span class="rel-page-btn rel-page-btn--disabled" aria-disabled="true"><span class="material-icons">chevron_right</span></span>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="rel-empty">
+        <div class="rel-empty__icon"><span class="material-icons">album</span></div>
+        <h3 class="rel-empty__title">Релизов пока нет</h3>
+        <p class="rel-empty__text">Создайте первый релиз — загрузите обложку, треки и отправьте на модерацию.</p>
+        <a href="{{ url_for('releases.create') }}" class="rel-btn rel-btn--primary">
+            <span class="material-icons">add</span>
+            Создать релиз
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

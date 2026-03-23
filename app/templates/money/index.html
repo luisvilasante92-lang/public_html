@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Финансы{% endblock %}
+{% block page_title %}Финансы{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="finance-banner">
+    <span class="material-icons">info</span>
+    <p>Отчётность и выплаты обновляются раз в 3 месяца. Ближайшее обновление поступит до 25 мая.</p>
+</div>
+
+<div class="dashboard-card finance-balance-card">
+    <div class="card-header"><h3><span class="material-icons">account_balance_wallet</span> Ваш баланс</h3></div>
+    <div class="card-content">
+        <p class="finance-balance-main">{{ format_money(finance_totals.balance) }}</p>
+        <ul class="finance-balance-meta">
+            <li><span class="label">Всего начислено по отчётам</span> <span class="value">{{ format_money(finance_totals.accrued) }}</span></li>
+            <li><span class="label">Выплачено (одобренные заявки)</span> <span class="value">{{ format_money(finance_totals.paid_out) }}</span></li>
+        </ul>
+        <p class="finance-balance-hint text-secondary">Баланс = начисления за все периоды минус суммы по заявкам со статусом «Одобрено».</p>
+    </div>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-header"><h3><span class="material-icons">payments</span> Финансовые отчёты</h3></div>
+    <div class="card-content">
+        {% for year, year_finances in finances_by_year.items()|sort(reverse=true) %}
+        <h4>{{ year }} год</h4>
+        <div class="quarters-grid" style="margin-bottom: 1.5rem;">
+            {% for finance in year_finances %}
+            <div class="quarter-card">
+                <div class="quarter-number">{{ finance.quarter_display.split()[0] }}</div>
+                <div class="quarter-label">квартал</div>
+                <div class="quarter-amount">{{ finance.amount_formatted }}</div>
+                <div class="quarter-actions">
+                <a href="{{ url_for('money.finance_detail', id=finance.id) }}" class="btn btn-ghost btn-sm">{% if finance.has_platform_breakdown %}По площадкам{% else %}Подробнее{% endif %}</a>
+                {% if finance.file_path %}
+                <a href="{{ url_for('money.download', id=finance.id) }}" class="btn btn-ghost btn-sm">Скачать</a>
+                {% endif %}
+                {% if not current_user.is_admin and finance.user_id == current_user.id and not finance.has_approval_request %}
+                <a href="{{ url_for('money.request_approval', id=finance.id) }}" class="btn btn-primary btn-sm">Согласовать выплату</a>
+                {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% if not finances %}
+        <div class="empty-state"><span class="material-icons">receipt_long</span><p>Отчётов пока нет</p></div>
+        {% endif %}
+    </div>
+</div>
+{% if current_user.is_admin %}
+<a href="{{ url_for('money.upload') }}" class="btn btn-primary" style="margin-top: 1rem;"><span class="material-icons">upload</span> Загрузить отчёт</a>
+<p class="text-secondary" style="margin-top: 0.75rem; font-size: 0.875rem;">Добавлять отчёты и строки по площадкам может только администратор.</p>
+{% endif %}
+</div>
+{% endblock %}

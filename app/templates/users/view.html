@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ user.name }}{% endblock %}
+{% block page_title %}{{ user.name }}{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="dashboard-card" style="margin-bottom:1rem;">
+<div class="card-content">
+<p><strong>Логин:</strong> {{ user.login }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Роль:</strong> {{ user.role }}</p>
+<p><strong>Статус:</strong> {% if user.is_active %}Активен{% else %}Заблокирован{% endif %}</p>
+<p><strong>Релизов:</strong> {{ stats.releases_count }}, одобрено: {{ stats.approved_releases }}</p>
+<p><strong>Тикетов:</strong> {{ stats.tickets_count }}</p>
+<p><strong>Договоров:</strong> {{ stats.contracts_count }}</p>
+</div></div>
+
+<div class="dashboard-card profile-tax-section" style="margin-bottom:1rem;">
+    <div class="card-header"><h3><span class="material-icons">receipt_long</span> Налоговая и платёжная информация</h3></div>
+    <div class="card-content profile-info__grid">
+        <div class="profile-info__row"><span class="profile-info__label">Налоговый статус</span><span class="profile-info__value">{{ user.tax_status_display }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">Наименование юр. лица / ИП</span><span class="profile-info__value">{{ user.tax_legal_name or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">ИНН</span><span class="profile-info__value">{{ user.tax_inn or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">Расчётный счёт</span><span class="profile-info__value">{{ user.tax_bank_account or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">Банк</span><span class="profile-info__value">{{ user.tax_bank_name or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">БИК</span><span class="profile-info__value">{{ user.tax_bank_bik or '—' }}</span></div>
+    </div>
+</div>
+
+<a href="{{ url_for('users.edit', id=user.id) }}" class="btn btn-primary" style="margin-top:0.5rem;">Редактировать</a>
+{% if user.id != current_user.id %}
+<form method="POST" action="{{ url_for('users.toggle_status', id=user.id) }}" style="display:inline; margin-top:1rem;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-ghost">{% if user.is_active %}Заблокировать{% else %}Разблокировать{% endif %}</button></form>
+{% endif %}
+<a href="{{ url_for('users.index') }}" class="btn btn-ghost" style="margin-top:1rem;">Назад</a>
+</div>
+{% endblock %}

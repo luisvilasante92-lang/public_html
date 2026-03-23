@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Редактирование: {{ link.display_name }}{% endblock %}
+{% block page_title %}Редактирование смарт-ссылки{% endblock %}
+{% block content %}
+<form method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Название</label><input type="text" name="custom_name" value="{{ link.custom_name or '' }}" class="form-control"></div>
+<div class="form-group"><label>Тема</label><select name="theme" class="form-control"><option value="dark" {% if link.theme == 'dark' %}selected{% endif %}>Тёмная</option><option value="light" {% if link.theme == 'light' %}selected{% endif %}>Светлая</option></select></div>
+<p><strong>Ссылки на платформы:</strong></p>
+{% for key, name in [('spotify','Spotify'),('apple_music','Apple Music'),('yandex_music','Яндекс Музыка'),('vk_music','VK Музыка'),('youtube_music','YouTube Music'),('deezer','Deezer')] %}
+<div class="form-group"><label>{{ name }}</label><input type="url" name="link_{{ key }}" value="{{ link.platform_links.get(key, '') if link.platform_links else '' }}" class="form-control"></div>
+{% endfor %}
+<div class="form-actions"><a href="{{ url_for('smart_link.view', id=link.id) }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary">Сохранить</button></div>
+</form>
+{% endblock %}

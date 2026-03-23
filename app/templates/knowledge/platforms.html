@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Требования площадок{% endblock %}
+{% block page_title %}Требования музыкальных площадок{% endblock %}
+{% block content %}
+<div class="knowledge-portal knowledge-article uni-skin kb-surface kb-surface--platforms">
+    <nav class="kb-breadcrumb breadcrumb kb-surface__breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">Требования площадок</span>
+    </nav>
+
+    <header class="kb-chapter-hero kb-chapter-hero--platforms" aria-labelledby="kb-plat-heading">
+        <div class="kb-chapter-hero__glow kb-chapter-hero__glow--platforms" aria-hidden="true"></div>
+        <div class="kb-chapter-hero__inner">
+            <div class="kb-chapter-hero__icon-wrap kb-chapter-hero__icon-wrap--platforms" aria-hidden="true">
+                <span class="material-icons">apps</span>
+            </div>
+            <p class="kb-chapter-hero__eyebrow">Технические стандарты</p>
+            <h1 id="kb-plat-heading" class="kb-chapter-hero__title">Требования музыкальных площадок</h1>
+            <p class="kb-chapter-hero__lead">Обложка, аудио, метаданные и особенности сервисов для успешной публикации.</p>
+        </div>
+    </header>
+
+    <article class="kb-doc kb-doc--platforms">
+    <div class="kb-doc__body article-content knowledge-static-body kb-prose kb-prose--platforms">
+        <div class="kb-callout kb-callout--muted">
+            <span class="material-icons kb-callout__icon" aria-hidden="true">update</span>
+            <p>Актуализировано с учётом требований площадок по официальным источникам и изменений в законодательстве с 1 марта 2026 года.</p>
+        </div>
+
+        <h2 id="kb-plat-law">Изменения в законодательстве с 1 марта 2026 года</h2>
+        <p>С 1 марта 2026 года вступают в силу нормы, запрещающие распространение в объектах авторского права информации, квалифицируемой как пропаганда наркотических средств и психотропных веществ. В связи с этим площадки проводят аудит каталога и могут удалять контент, признанный несущим риски.</p>
+        <p><strong>Рекомендуем:</strong> провести проверку своих релизов (обложки, названия, тексты, метаданные) и убедиться, что контент соответствует требованиям закона. При выявлении нарушений возможны удаление релизов с площадок, приостановка выплат и иные меры ответственности.</p>
+
+        <h2 id="kb-plat-common">Общие технические требования</h2>
+        <p>Для публикации на всех площадках необходимо соблюдать единые технические требования. Ниже — сводка по официальным гайдлайнам площадок.</p>
+
+        <div class="kb-spec-grid">
+            <section class="kb-spec-card">
+                <h3 class="kb-spec-card__title"><span class="material-icons">image</span> Обложка</h3>
+                <ul class="kb-spec-card__list">
+                    <li><strong>Размер:</strong> 3000×3000 px (квадрат)</li>
+                    <li><strong>Формат:</strong> JPG или PNG</li>
+                    <li><strong>Разрешение:</strong> минимум 3000×3000, максимум 6000×6000</li>
+                    <li><strong>Без текста:</strong> на обложке не должно быть логотипов, названий, призывов к действию</li>
+                    <li><strong>Авторские права:</strong> используйте только изображения, на которые у вас есть права</li>
+                </ul>
+            </section>
+            <section class="kb-spec-card">
+                <h3 class="kb-spec-card__title"><span class="material-icons">graphic_eq</span> Аудио</h3>
+                <ul class="kb-spec-card__list">
+                    <li><strong>Формат:</strong> WAV (несжатый)</li>
+                    <li><strong>Разрешение:</strong> 44.1 kHz или 48 kHz, 16- или 24-бит</li>
+                    <li><strong>Длительность:</strong> минимум 1 секунда</li>
+                    <li><strong>Качество:</strong> без клиппинга и артефактов сжатия</li>
+                </ul>
+            </section>
+            <section class="kb-spec-card">
+                <h3 class="kb-spec-card__title"><span class="material-icons">label</span> Метаданные</h3>
+                <ul class="kb-spec-card__list">
+                    <li><strong>Название:</strong> точно соответствует релизу</li>
+                    <li><strong>Артист:</strong> имя исполнителя или группы</li>
+                    <li><strong>Жанр:</strong> актуальный жанр музыки</li>
+                    <li><strong>Дата релиза:</strong> планируемая дата выхода</li>
+                </ul>
+            </section>
+        </div>
+
+        <h2 class="kb-plat-service-title" id="kb-plat-spotify">Spotify</h2>
+        <ul class="kb-plat-list">
+            <li>Обложка 3000×3000 px, JPG/PNG</li>
+            <li>Аудио WAV 44.1 kHz / 16-bit минимум</li>
+            <li>Трек не короче 30 секунд</li>
+            <li>Название не должно содержать номера треков</li>
+        </ul>
+
+        <h2 class="kb-plat-service-title" id="kb-plat-apple">Apple Music</h2>
+        <ul class="kb-plat-list">
+            <li>Обложка 3000×3000 px, RGB</li>
+            <li>Аудио WAV или FLAC</li>
+            <li>Минимум 1 трек в релизе</li>
+            <li>ISRC обязателен для треков</li>
+        </ul>
+
+        <h2 class="kb-plat-service-title" id="kb-plat-yandex">Яндекс.Музыка</h2>
+        <ul class="kb-plat-list">
+            <li>Обложка 3000×3000 px</li>
+            <li>Аудио WAV</li>
+            <li>Метаданные на русском при необходимости</li>
+        </ul>
+
+        <h2 class="kb-plat-service-title" id="kb-plat-vk">VK Музыка</h2>
+        <ul class="kb-plat-list">
+            <li>Обложка 3000×3000 px</li>
+            <li>Аудио WAV</li>
+        </ul>
+
+        <h2 class="kb-plat-service-title" id="kb-plat-other">Deezer, YouTube Music и др.</h2>
+        <p>Используйте те же требования: обложка 3000×3000, аудио WAV. Площадки получают контент через агрегаторов дистрибуции.</p>
+    </div>
+    </article>
+
+    <footer class="kb-footer-actions kb-surface__footer">
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span>
+            К базе знаний
+        </a>
+    </footer>
+</div>
+{% endblock %}

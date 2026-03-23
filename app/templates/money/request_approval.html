@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Согласование выплаты{% endblock %}
+{% block page_title %}Заявка на согласование{% endblock %}
+{% block content %}
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <p>Отчёт: {{ finance.quarter_display }}, сумма {{ finance.amount_formatted }}</p>
+    <div class="form-group"><label>Контакт</label><input type="text" name="contact_info" class="form-control"></div>
+    <div class="form-group"><label>Сумма *</label><input type="number" name="amount" value="{{ finance.amount }}" step="0.01" required class="form-control"></div>
+    <div class="form-group"><label>Номер карты</label><input type="text" name="card_number" class="form-control" placeholder="XXXX XXXX XXXX XXXX"></div>
+    <div class="form-group"><label>Номер счёта</label><input type="text" name="account_number" class="form-control"></div>
+    <div class="form-actions"><a href="{{ url_for('money.index') }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary">Отправить</button></div>
+</form>
+{% endblock %}
